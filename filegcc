@@ -1,0 +1,2 @@
+#!/bin/bash
+gcc -g -mcpu=v9 benchmarks/$1/$1.s -o benchmarks/$1/$1

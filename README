@@ -1,0 +1,19 @@
+To compile the compiler: 'make'
+
+To compile an input program: 'java Evil file.ev'
+Note: file.il is the outputted iloc file and file.s is the outputted assembly file
+
+To make an executable: 'gcc -mcpu=v9 file.s -o file'
+Note: must be on a Sparc machine
+
+To run executable: './file'
+
+
+To run benchmarks:
+
+./makeTests.sh - makes the program and runs `java Evil ....ev` on each benchmark (run on vogon/unix)
+./runTests.sh - `gcc -mcpu=v9 ....s` on each benchmark, runs the executable and diffs the output (run on sparc)
+./runMultiTests.sh - same as runTests.sh except it is multi-threaded
+
+
+Created by: Ben Hirsch and Marc Zych

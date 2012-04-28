@@ -1,0 +1,21 @@
+#!/bin/bash
+./filegcc BenchMarkishTopics
+./filegcc bert
+./filegcc biggest
+./filegcc binaryConverter
+./filegcc creativeBenchMarkName
+./filegcc fact_sum
+./filegcc Fibonacci
+./filegcc GeneralFunctAndOptimize
+./filegcc hailstone
+./filegcc hanoi_benchmark
+./filegcc killerBubbles
+./filegcc mile1
+./filegcc mixed
+./filegcc OptimizationBenchmark
+./filegcc primes
+./filegcc programBreaker
+./filegcc stats
+./filegcc TicToe
+./filegcc uncreativeBenchmark
+./filegcc wasteOfCycles

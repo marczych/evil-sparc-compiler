@@ -1,0 +1,104 @@
+struct node {
+       int num;
+       struct node next;
+};
+
+struct node head;
+struct node tail;
+
+fun addnode (int num) void 
+{
+        struct node newList;
+ 	newList = new node;
+	newList.num = num;
+	newList.next = null;
+
+	if(head == null)
+	{
+		head = newList;
+		tail = newList;
+	}
+	else
+	{
+		tail.next = newList;
+		tail = newList;
+	}
+}
+
+fun printList (struct node cur) void
+{
+	if (cur == tail) 
+        {
+         	print cur.num endl;
+	}
+	else
+	{
+		print cur.num;
+		printList(cur.next);
+	}
+}
+
+fun deletenode (struct node cur, int num) void 
+{
+	struct node temp;
+	
+	if (cur == null) {}
+	else {if (head.num == num)
+	{
+		temp = head;
+		head = head.next;
+		delete temp;
+	}
+	else {if (cur.next == tail)
+	{
+		temp = tail;
+		tail = cur;
+		tail.next = null;
+		delete temp;
+	}
+	else {if (cur.next.num == num) 
+	{
+		temp = cur.next;
+		cur.next = cur.next.next;
+		delete temp;
+	}
+	else
+	{
+		deletenode (cur.next, num);
+	}
+         }}}
+}
+
+fun main () int 
+{
+    	int x, y;
+    	int i;
+    
+	read x;
+    	read y;
+ 
+	addnode (1);
+	addnode (10);
+	addnode (3);
+	addnode (4);
+	addnode (x);
+	printList (head);
+	
+	i = 0;
+	while( i < 100 )
+	{
+		addnode(i);
+		i = i + 1;
+	}
+	
+	i = 0;
+	while ( i < 100 )
+	{
+		deletenode(head,i);
+		i = i + 1;
+	}
+
+    	deletenode (head, y);
+	printList(head);    
+    	return 0;
+}
