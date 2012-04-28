@@ -2,3 +2,8 @@
 *.tokens
 *.il
 *.s
+antlr.*
+CFG.java
+EvilLexer.java
+EvilParser.java
+TypeCheck.java
