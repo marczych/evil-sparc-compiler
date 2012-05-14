@@ -7,3 +7,6 @@ CFG.java
 EvilLexer.java
 EvilParser.java
 TypeCheck.java
+my.*
+gcc.*
+*.swp

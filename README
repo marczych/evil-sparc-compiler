@@ -8,10 +8,12 @@ Note: must be on a Sparc machine
 
 To run executable: './file'
 
+Note: To get a symbol file from a c file, run `gcc file.c -S`
+
 
 To run benchmarks:
 
-./makeTests.sh - makes the program and runs `java Evil ....ev` on each benchmark (run on vogon/unix)
+./makeTests.sh - makes the program and runs `java Evil ....ev` on each benchmark (run on vogon/unix or sparc)
 ./runTests.sh - `gcc -mcpu=v9 ....s` on each benchmark, runs the executable and diffs the output (run on sparc)
 ./runMultiTests.sh - same as runTests.sh except it is multi-threaded
 

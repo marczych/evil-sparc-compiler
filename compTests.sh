@@ -16,6 +16,6 @@
 ./filegcc primes
 ./filegcc programBreaker
 ./filegcc stats
-./filegcc TicToe
+./filegcc TicTac
 ./filegcc uncreativeBenchmark
 ./filegcc wasteOfCycles
