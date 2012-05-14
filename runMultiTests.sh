@@ -1,4 +1,5 @@
 #!/bin/bash
+# Runs all benchmarks in parallel and verifies their correctness.
 
 function jobidfromstring()
 {

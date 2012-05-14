@@ -1,4 +1,5 @@
 #!/bin/bash
+# Builds all benchmarks into a .s file
 make
 if [ $? == 0 ]; then
    rm `find benchmarks/ -name "*.s"`

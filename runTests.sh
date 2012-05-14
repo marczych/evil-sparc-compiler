@@ -1,4 +1,5 @@
 #!/bin/bash
+# Runs all benchmarks sequentially and verifies their correctness.
 ulimit -s unlimited
 count=0
 ./fileRun.sh BenchMarkishTopics
