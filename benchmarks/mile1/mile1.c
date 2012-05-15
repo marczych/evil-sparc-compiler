@@ -39,5 +39,5 @@ EV_i = (EV_i+1);
 EV_result = calcPower(EV_power->EV_base, EV_power->EV_exp);
 }
 printf("%d\n",EV_result);
-return 1;
+return 0;
 }

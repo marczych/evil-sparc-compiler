@@ -37,6 +37,6 @@ fun main () int {
     
     print result endl;
     
-    return 1;
+    return 0;
 }
 
