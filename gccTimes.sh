@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ulimit -s unlimited
+
 FILE="gccTimes.txt"
 
 # Truncate the file and start with the column headers

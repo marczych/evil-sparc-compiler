@@ -1,5 +1,8 @@
 #!/bin/bash
 
+ulimit -s unlimited
+make
+
 FILE="myTimes.txt"
 
 echo "" >> $FILE

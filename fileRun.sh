@@ -3,6 +3,8 @@
 # input file and compares it with the benchmarks' output file. Also outputs
 # time taken.
 
+ulimit -s unlimited
+
 echo ----------============= Running $1 =============-----------
 gcc -mcpu=v9 benchmarks/$1/$1.s -o benchmarks/$1/my.$1
 if [ $? == 0 ]; then
