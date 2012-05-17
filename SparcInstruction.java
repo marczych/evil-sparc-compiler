@@ -7,7 +7,8 @@ public abstract class SparcInstruction {
 
    public abstract ArrayList<SparcRegister> getSources();
    public abstract ArrayList<SparcRegister> getDests();
-   public abstract void replaceSpills(Hashtable<SparcRegister, SparcRegister> spills);
+   public abstract void replaceSpills(
+    Hashtable<SparcRegister, SparcRegister> spills);
 
    public boolean equals(Object o) {
       return this == o;
@@ -20,14 +21,15 @@ public abstract class SparcInstruction {
    public ArrayList<SparcInstruction> getInstrs() {
       ArrayList<SparcInstruction> list = new ArrayList<SparcInstruction>();
       ArrayList<SparcRegister> srcs = getSources(), dests = getDests();
-      Hashtable<SparcRegister, SparcRegister> spills = new Hashtable<SparcRegister, SparcRegister>();
+      Hashtable<SparcRegister, SparcRegister> spills =
+       new Hashtable<SparcRegister, SparcRegister>();
       SparcRegister spill, spillReplace;
 
       for (SparcRegister reg : srcs) {
          if ((spill = SparcRegister.spillMap.get(reg)) != null) {
             spillReplace = getSpillReplace(spills, reg);
             list.add(new LdswSparc(SparcRegister.framePointer, spillReplace,
-              spill.mNum * 4));
+             spill.mNum * 4));
          }
       }
 
@@ -36,7 +38,8 @@ public abstract class SparcInstruction {
       for (SparcRegister reg : dests) {
          if ((spill = SparcRegister.spillMap.get(reg)) != null) {
             spillReplace = getSpillReplace(spills, reg);
-            list.add(new StSparc(spillReplace ,SparcRegister.framePointer, spill.mNum * 4));
+            list.add(new StSparc(spillReplace ,SparcRegister.framePointer,
+             spill.mNum * 4));
          }
       }
 
@@ -46,7 +49,8 @@ public abstract class SparcInstruction {
       return list;
    }
 
-   private static SparcRegister getSpillReplace(Hashtable<SparcRegister, SparcRegister> hash, SparcRegister reg) {
+   private static SparcRegister getSpillReplace(Hashtable<SparcRegister,
+    SparcRegister> hash, SparcRegister reg) {
       SparcRegister res;
       if ((res = hash.get(reg)) != null)
          return res;

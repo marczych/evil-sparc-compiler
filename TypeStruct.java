@@ -1,4 +1,3 @@
-
 public class TypeStruct implements EVILType {
    protected String name;
 
@@ -7,8 +6,8 @@ public class TypeStruct implements EVILType {
    }
 
    public boolean isSameType(EVILType other) {
-		if(other instanceof TypeNull)
-				  return true;
+      if(other instanceof TypeNull)
+         return true;
 
       if (other instanceof TypeStruct)
          return name.equals(((TypeStruct)other).name);
@@ -16,5 +15,7 @@ public class TypeStruct implements EVILType {
       return false;
    }
 
-	public String toString() { return "TypeStruct"; }
+   public String toString() {
+      return "TypeStruct";
+   }
 }

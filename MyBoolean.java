@@ -9,13 +9,15 @@ public class MyBoolean {
       val = true;
    }
 
-	public void change(boolean newVal) { val = newVal; }
+   public void change(boolean newVal) {
+      val = newVal;
+   }
 
    public boolean isFalse() {
       return !val;
    }
 
-	public boolean isTrue() {
-			  return val;
-	}
+   public boolean isTrue() {
+      return val;
+   }
 }

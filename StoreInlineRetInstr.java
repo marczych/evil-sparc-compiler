@@ -2,14 +2,14 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class StoreInlineRetInstr extends IlocInstruction {
-	protected Register mReg;
+   protected Register mReg;
 
    public StoreInlineRetInstr(Register reg) {
       mReg = reg;
    }
 
    public String toIloc() {
-		return "storeret "+mReg.toIloc();
+      return "storeret "+mReg.toIloc();
    }
 
    public ArrayList<SparcInstruction> toSparc() {

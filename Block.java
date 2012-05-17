@@ -13,25 +13,25 @@ public class Block {
    protected static ArrayList<Block> mRoster = new ArrayList<Block>();
 
    protected String mLabel;
-	protected ArrayList<IlocInstruction> mInstructionList;
-	protected ArrayList<IlocInstruction> mInlineList;
-	protected ArrayList<SparcInstruction> mSparcList;
-	protected ArrayList<Block> mPredecessors;
+   protected ArrayList<IlocInstruction> mInstructionList;
+   protected ArrayList<IlocInstruction> mInlineList;
+   protected ArrayList<SparcInstruction> mSparcList;
+   protected ArrayList<Block> mPredecessors;
    protected TreeSet<SparcRegister> mGenSet, mKillSet, mLiveOut;
    protected Block mThen;
    protected Block mElse;
    protected Block mInlineEntry;
    protected Block mInlineExit;
    protected long mNumber;
-	protected int mLargestNumArgs;
-	protected int mSpillCount;
+   protected int mLargestNumArgs;
+   protected int mSpillCount;
    protected Register mCondReg;
-	protected boolean mReturn = false;
-	protected boolean mIsInExit = false;
-	protected boolean mEntry = false;
-	protected boolean mInline = false;
-	protected boolean mCallsSelf = false;
-	protected boolean mLoop = false;
+   protected boolean mReturn = false;
+   protected boolean mIsInExit = false;
+   protected boolean mEntry = false;
+   protected boolean mInline = false;
+   protected boolean mCallsSelf = false;
+   protected boolean mLoop = false;
    protected boolean mPrinted = false;
    protected boolean mMakeSparced = false;
    protected boolean mGetAlled = false;
@@ -41,22 +41,22 @@ public class Block {
       this("BLOCK");
    }
 
-	public Block(String label) {
+   public Block(String label) {
       mLabel = label;
-		mInstructionList = new ArrayList<IlocInstruction>();
-		mInlineList = new ArrayList<IlocInstruction>();
-		mSparcList = new ArrayList<SparcInstruction>();
-		mPredecessors = new ArrayList<Block>();
+      mInstructionList = new ArrayList<IlocInstruction>();
+      mInlineList = new ArrayList<IlocInstruction>();
+      mSparcList = new ArrayList<SparcInstruction>();
+      mPredecessors = new ArrayList<Block>();
       mLiveOut = new TreeSet<SparcRegister>();
 
       mNumber = mCount++;
 
       mRoster.add(this);
-	}
+   }
 
-	public void setLargestNumArgs(int num) {
-		mLargestNumArgs = num;
-	}
+   public void setLargestNumArgs(int num) {
+      mLargestNumArgs = num;
+   }
 
    public int hashCode() {
       return getFullLabel().hashCode();
@@ -82,7 +82,8 @@ public class Block {
 
    public boolean checkInline() {
       //don't inline main... that would be bad.
-      if (FUNCTION_INLINING && !mCallsSelf && !mLoop && checkInlineLength() && !getFullLabel().equals("main"))
+      if (FUNCTION_INLINING && !mCallsSelf && !mLoop && checkInlineLength() &&
+       !getFullLabel().equals("main"))
          mInline = true;
       else
          return mInline;
@@ -124,11 +125,12 @@ public class Block {
          ret.addThen(mThen.inlineClone(blocks));
       if (mElse != null)
          ret.addElse(mElse.inlineClone(blocks));
-      
+
       return ret;
    }
-   
-   public Block inlineMakeClone(Hashtable<Block, Block> blocks, Hashtable<Register, Register> regs) {
+
+   public Block inlineMakeClone(Hashtable<Block, Block> blocks,
+    Hashtable<Register, Register> regs) {
       Block ret;
 
       if ((ret = blocks.get(this)) != null) {
@@ -159,7 +161,7 @@ public class Block {
          curExit = ret;
 
       ret.mInlineExit = curExit;
-      
+
       return ret;
    }
 
@@ -170,7 +172,8 @@ public class Block {
    }
 
    public int getInstrCount() {
-      return mInstructionList.size() + (mThen != null ? mThen.getInstrCount() : 0)+ (mElse != null ? mElse.getInstrCount() : 0);
+      return mInstructionList.size() + (mThen != null ?
+       mThen.getInstrCount() : 0) + (mElse != null ? mElse.getInstrCount() : 0);
    }
 
    public void setSpillCount(int val) {
@@ -259,9 +262,9 @@ public class Block {
       TreeSet<SparcRegister> newLiveOut = new TreeSet<SparcRegister>();
 
       if (mThen != null)
-        liveOutHelper(mThen, newLiveOut); 
+         liveOutHelper(mThen, newLiveOut); 
       if (mElse != null)
-        liveOutHelper(mElse, newLiveOut); 
+         liveOutHelper(mElse, newLiveOut); 
 
       if (mLiveOut.equals(newLiveOut))
          return false;
@@ -284,9 +287,9 @@ public class Block {
          for (SparcRegister dest : instr.getDests()) {
             instr.mLiveOut.remove(dest);
 
-             // add edge from dest to all elements in Live
-             for (SparcRegister live : prev)
-                graph.addEdge(dest, live);
+            // add edge from dest to all elements in Live
+            for (SparcRegister live : prev)
+               graph.addEdge(dest, live);
          }
 
          for (SparcRegister src : instr.getSources()) {
@@ -306,7 +309,8 @@ public class Block {
    }
 
    private void liveOutHelper(Block succ, TreeSet<SparcRegister> liveOut) {
-      TreeSet<SparcRegister> sLiveOut = succ.getLiveOut(), sKillSet = succ.getKillSet();
+      TreeSet<SparcRegister> sLiveOut = succ.getLiveOut(), sKillSet =
+       succ.getKillSet();
 
       liveOut.addAll(succ.getGenSet());
 
@@ -340,14 +344,12 @@ public class Block {
          return;
 
       mPrintSetsed = true;
-      //System.out.println(getFullLabel() + " -> Gen: " + mGenSet + ", Kill: " + mKillSet + ", LiveOut: " + mLiveOut);
-      //System.out.println();
       if (mThen != null)
          mThen.printSets();
       if (mElse != null)
          mElse.printSets();
    }
-   
+
    public void setLabel(String label) {
       mLabel = label;
    }
@@ -369,7 +371,7 @@ public class Block {
    public void appendInstruction(ArrayList<IlocInstruction> instr) {
       if (mReturn)
          return;
-     mInstructionList.addAll(instr);
+      mInstructionList.addAll(instr);
    }
 
    public void appendCondition(Register res) {
@@ -383,10 +385,10 @@ public class Block {
       if (mReturn)
          return;
       mThen = thenBlock;
-		mThen.appendPredecessor(this);
+      mThen.appendPredecessor(this);
    }
 
-	public Block getThen() {
+   public Block getThen() {
       return mThen;
    }
 
@@ -394,12 +396,12 @@ public class Block {
       if (mReturn)
          return;
       mElse = elseBlock;
-		mElse.appendPredecessor(this);
+      mElse.appendPredecessor(this);
    }
 
-	public void appendPredecessor(Block pred) {
-		mPredecessors.add(pred);
-	}
+   public void appendPredecessor(Block pred) {
+      mPredecessors.add(pred);
+   }
 
    public static void writeIloc(FileOutputStream os) {
       try {
@@ -431,19 +433,19 @@ public class Block {
       }
    }
 
-	public void setReturn() {
-	   mReturn = true;
-	}
+   public void setReturn() {
+      mReturn = true;
+   }
 
-	public String getFullLabel() {
+   public String getFullLabel() {
       if (mIsInExit) {
          return mThen.getFullLabel();
       }
       if (mEntry)
          return mLabel.equals("main") ? mLabel : "fun" + mLabel;
 
-		return mLabel + mNumber;
-	}
+      return mLabel + mNumber;
+   }
 
    public String getLabel() {
       if (mLabel.contains("-CONT"))
@@ -459,16 +461,14 @@ public class Block {
          return mThen.toSparc();
       }
 
-      //System.out.println("sparc: " + getFullLabel() + " then: " + (mThen != null ? mThen.getFullLabel() : "null") + " else: " + (mElse != null ? mElse.getFullLabel() : "null"));
-
       mPrinted = true;
-		int saveSize = 96;
+      int saveSize = 96;
 
-		if(mLargestNumArgs > 6)
-				  saveSize += (mLargestNumArgs-6)*4;
-		 saveSize += mSpillCount*4;
-		if(saveSize % 8 != 0)
-		   saveSize += 4;
+      if(mLargestNumArgs > 6)
+         saveSize += (mLargestNumArgs-6)*4;
+      saveSize += mSpillCount*4;
+      if(saveSize % 8 != 0)
+         saveSize += 4;
 
       String temp = getFullLabel() + ":";
 
@@ -493,7 +493,7 @@ public class Block {
       if (mThen != null && mElse != null) {
          mInstructionList.add(new CompiInstr(mCondReg, CFG.TRUE_VAL));
          mInstructionList.add(new CBREQInstr(mThen.getFullLabel(),
-           mElse.getFullLabel()));
+                  mElse.getFullLabel()));
       }
       else if (mElse == null && mThen != null && mThen.mPredecessors.size() > 1) {
          mInstructionList.add(new JumpiInstr(mThen.getFullLabel()));
@@ -509,18 +509,5 @@ public class Block {
 
    public String toString() {
       return getLabel() + mNumber;
-      //String temp = mLabel + mNumber + ":";
-		//temp += "\nThen Block: ";
-		//if(mThen != null)
-		//	temp = temp + mThen.getFullLabel();
-		//temp += "\nElse Block: ";
-		//if(mElse != null)
-		//	temp = temp + mElse.getFullLabel();
-		//temp += "\n";
-
-      //for (IlocInstruction instr : mInstructionList)
-      //   temp = temp + "\n\t" + instr;
-
-      //return temp;
    }
 }

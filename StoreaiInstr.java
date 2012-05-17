@@ -2,20 +2,20 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class StoreaiInstr extends IlocInstruction {
-	private Register mVal, mVar;
-	private String mOff;
+   private Register mVal, mVar;
+   private String mOff;
    private Struct mStruct;
 
    public StoreaiInstr(Register val, Register var, String off, Struct str) {
       mVal = val;
-		mVar = var;
-		mOff = off;
+      mVar = var;
+      mOff = off;
       mStruct = str;
    }
 
    public String toIloc() {
       return "storeai "+mVal.toIloc()+", "+mVar.toIloc()+", "+mOff + 
-        " (" + mStruct.getOffset(mOff) + " - " + mStruct + ")";
+       " (" + mStruct.getOffset(mOff) + " - " + mStruct + ")";
    }
 
    public ArrayList<SparcInstruction> toSparc() {

@@ -15,7 +15,7 @@ public class SubSparc extends SparcInstruction {
 
       list.add(mSrc1);
       list.add(mSrc2);
-      
+
       return list;
    }
 
@@ -23,7 +23,7 @@ public class SubSparc extends SparcInstruction {
       ArrayList<SparcRegister> list = new ArrayList<SparcRegister>();
 
       list.add(mDest);
-      
+
       return list;
    }
 

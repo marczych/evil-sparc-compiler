@@ -17,7 +17,7 @@ public class CompiInstr extends IlocInstruction {
    public ArrayList<SparcInstruction> toSparc() {
       ArrayList<SparcInstruction> list = new ArrayList<SparcInstruction>();
 
-		list.add(new CompiSparc(mReg.toSparc(), mImmed));
+      list.add(new CompiSparc(mReg.toSparc(), mImmed));
 
       return list;
    }

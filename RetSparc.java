@@ -17,9 +17,9 @@ public class RetSparc extends SparcInstruction {
       return new ArrayList<SparcRegister>();
    }
 
-	public String toString() {
-		return "ret";
-	}
+   public String toString() {
+      return "ret";
+   }
 
    public void replaceSpills(Hashtable<SparcRegister, SparcRegister> spills) {
 

@@ -2,33 +2,33 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 
 public class SDivxSparc extends SparcInstruction {
-	protected SparcRegister mSrc1, mSrc2, mDest;
+   protected SparcRegister mSrc1, mSrc2, mDest;
 
    public SDivxSparc(SparcRegister src1, SparcRegister src2, SparcRegister dest) {
-		mSrc1 = src1;
-		mSrc2 = src2;
-		mDest = dest;
+      mSrc1 = src1;
+      mSrc2 = src2;
+      mDest = dest;
    }
 
    public ArrayList<SparcRegister> getSources() {
-		ArrayList<SparcRegister> list = new ArrayList<SparcRegister>();
+      ArrayList<SparcRegister> list = new ArrayList<SparcRegister>();
 
-		list.add(mSrc1);
-		list.add(mSrc2);
+      list.add(mSrc1);
+      list.add(mSrc2);
 
-		return list;
+      return list;
    }
 
    public ArrayList<SparcRegister> getDests() {
-		ArrayList<SparcRegister> list = new ArrayList<SparcRegister>();
+      ArrayList<SparcRegister> list = new ArrayList<SparcRegister>();
 
-		list.add(mDest);
+      list.add(mDest);
 
-		return list;
+      return list;
    }
 
    public String toString() {
-		return "sdivx "+mSrc1+", "+mSrc2+", "+mDest;
+      return "sdivx "+mSrc1+", "+mSrc2+", "+mDest;
    }
 
    public void replaceSpills(Hashtable<SparcRegister, SparcRegister> spills) {

@@ -14,7 +14,7 @@ public class NopSparc extends SparcInstruction {
    }
 
    public String toString() {
-		return "nop";
+      return "nop";
    }
 
    public void replaceSpills(Hashtable<SparcRegister, SparcRegister> spills) {

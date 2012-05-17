@@ -12,15 +12,15 @@ public class MultInstr extends IlocInstruction {
 
    public String toIloc() {
       return "mult " + mSrc1.toIloc() + ", " + mSrc2.toIloc() + ", "
-         + mDest.toIloc();
+       + mDest.toIloc();
    }
 
    public ArrayList<SparcInstruction> toSparc() {
-		ArrayList<SparcInstruction> list = new ArrayList<SparcInstruction>();
-		list.add(new SraSparc(mSrc1.toSparc(), SparcRegister.getZero(), mSrc1.toSparc()));
-		list.add(new SraSparc(mSrc2.toSparc(), SparcRegister.getZero(), mSrc2.toSparc()));
-		list.add(new MulxSparc(mSrc1.toSparc(), mSrc2.toSparc(), mDest.toSparc()));
-		return list;
+      ArrayList<SparcInstruction> list = new ArrayList<SparcInstruction>();
+      list.add(new SraSparc(mSrc1.toSparc(), SparcRegister.getZero(), mSrc1.toSparc()));
+      list.add(new SraSparc(mSrc2.toSparc(), SparcRegister.getZero(), mSrc2.toSparc()));
+      list.add(new MulxSparc(mSrc1.toSparc(), mSrc2.toSparc(), mDest.toSparc()));
+      return list;
    }
 
    public void regReplace(Hashtable<Register, Register> hash) {

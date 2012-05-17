@@ -3,5 +3,7 @@ public class TypeNull implements EVILType {
       return other instanceof TypeNull || other instanceof TypeStruct;
    }
 
-	public String toString() { return "TypeNull"; }
+	public String toString() {
+      return "TypeNull";
+   }
 }

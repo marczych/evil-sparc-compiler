@@ -2,13 +2,13 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class CallInstr extends IlocInstruction {
-	private String mFun;
+   private String mFun;
    public CallInstr(String fun) {
       mFun = fun;
    }
 
    public String toIloc() {
-		return "call "+mFun;
+      return "call "+mFun;
    }
 
    public ArrayList<SparcInstruction> toSparc() {

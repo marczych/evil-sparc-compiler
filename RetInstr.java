@@ -6,7 +6,7 @@ public class RetInstr extends IlocInstruction {
    }
 
    public String toIloc() {
-			  return "ret";
+      return "ret";
    }
 
    public ArrayList<SparcInstruction> toSparc() {

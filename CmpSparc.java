@@ -2,20 +2,20 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 
 public class CmpSparc extends SparcInstruction {
-	protected SparcRegister src1, src2;
+   protected SparcRegister src1, src2;
 
    public CmpSparc(SparcRegister r1, SparcRegister r2) {
-		src1 = r1;
-		src2 = r2;
+      src1 = r1;
+      src2 = r2;
    }
 
    public ArrayList<SparcRegister> getSources() {
-		ArrayList<SparcRegister> list = new ArrayList<SparcRegister>();
+      ArrayList<SparcRegister> list = new ArrayList<SparcRegister>();
 
-		list.add(src1);
-		list.add(src2);
+      list.add(src1);
+      list.add(src2);
 
-		return list;
+      return list;
    }
 
    public ArrayList<SparcRegister> getDests() {
@@ -23,7 +23,7 @@ public class CmpSparc extends SparcInstruction {
    }
 
    public String toString() {
-		return "cmp "+src1+", "+src2;
+      return "cmp "+src1+", "+src2;
    }
 
    public void replaceSpills(Hashtable<SparcRegister, SparcRegister> spills) {

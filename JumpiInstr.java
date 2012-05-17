@@ -2,15 +2,14 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class JumpiInstr extends IlocInstruction {
-
-	private String mLabel;
+   private String mLabel;
 
    public JumpiInstr(String label) {
       mLabel = label;
    }
 
    public String toIloc() {
-		return "jumpi "+mLabel;
+      return "jumpi "+mLabel;
    }
 
    public ArrayList<SparcInstruction> toSparc() {

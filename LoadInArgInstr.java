@@ -3,17 +3,17 @@ import java.util.Hashtable;
 import java.util.TreeSet;
 
 public class LoadInArgInstr extends IlocInstruction {
-	protected String mName;
-	protected int mIdx;
-	protected Register mReg;
+   protected String mName;
+   protected int mIdx;
+   protected Register mReg;
    public LoadInArgInstr(String varName, int idx, Register reg) {
       mName = varName;
-		mIdx = idx;
-		mReg = reg;
+      mIdx = idx;
+      mReg = reg;
    }
 
    public String toIloc() {
-		return "loadinargument "+mName+", "+mIdx+", "+mReg.toIloc();
+      return "loadinargument "+mName+", "+mIdx+", "+mReg.toIloc();
    }
 
    public ArrayList<SparcInstruction> toSparc() {

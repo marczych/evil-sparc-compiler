@@ -12,7 +12,7 @@ public class AddInstr extends IlocInstruction {
 
    public String toIloc() {
       return "add " + mSrc1.toIloc() + ", " + mSrc2.toIloc() + ", "
-         + mDest.toIloc();
+       + mDest.toIloc();
    }
 
    public ArrayList<SparcInstruction> toSparc() {

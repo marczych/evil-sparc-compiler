@@ -2,13 +2,13 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class LoadRetInstr extends IlocInstruction {
-	private Register mReg;
+   private Register mReg;
    public LoadRetInstr(Register ret) {
       mReg = ret;
    }
 
    public String toIloc() {
-		return "loadret "+mReg.toIloc();
+      return "loadret "+mReg.toIloc();
    }
 
    public ArrayList<SparcInstruction> toSparc() {

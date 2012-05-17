@@ -24,7 +24,9 @@ public class RegGraph {
       }
 
       public String toString() {
-         String temp = "Reg: " + mReg + ", Real: " + (mReal == null ? "null" : mReal) + ", Edges (" + mEdges.size() + "): ";
+         String temp = "Reg: " + mReg + ", Real: " + (mReal == null ? "null" :
+          mReal) + ", Edges (" + mEdges.size() + "): ";
+
          for (Node node : mEdges)
             temp += node.mReg.toString() + ", ";
 
@@ -90,7 +92,7 @@ public class RegGraph {
       Node ret;
 
       if (reg.compareTo(SparcRegister.getGlobal(0)) == 0 ||
-          reg.compareTo(SparcRegister.framePointer) == 0)
+       reg.compareTo(SparcRegister.framePointer) == 0)
          return null;
 
       if ((ret = mNodes.get(reg)) == null)

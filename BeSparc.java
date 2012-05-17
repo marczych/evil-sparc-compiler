@@ -2,10 +2,10 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 
 public class BeSparc extends SparcInstruction {
-	protected String mLabel;
+   protected String mLabel;
 
    public BeSparc(String label) {
-		mLabel = label;
+      mLabel = label;
    }
 
    public ArrayList<SparcRegister> getSources() {
@@ -17,7 +17,7 @@ public class BeSparc extends SparcInstruction {
    }
 
    public String toString() {
-		return "be "+mLabel;
+      return "be "+mLabel;
    }
 
    public void replaceSpills(Hashtable<SparcRegister, SparcRegister> spills) {

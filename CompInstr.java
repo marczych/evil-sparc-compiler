@@ -5,8 +5,8 @@ public class CompInstr extends IlocInstruction {
    protected Register mReg, mReg2;
 
    public CompInstr(Register reg, Register reg2) {
-			  mReg = reg;
-			  mReg2 = reg2;
+      mReg = reg;
+      mReg2 = reg2;
    }
 
    public String toIloc() {

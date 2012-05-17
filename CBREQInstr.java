@@ -3,15 +3,15 @@ import java.util.Hashtable;
 
 public class CBREQInstr extends IlocInstruction {
 
-	private String mTrueLabel, mFalseLabel;
+   private String mTrueLabel, mFalseLabel;
 
    public CBREQInstr(String trueLabel, String falseLabel) {
-		mTrueLabel = trueLabel;
-		mFalseLabel = falseLabel;
+      mTrueLabel = trueLabel;
+      mFalseLabel = falseLabel;
    }
 
    public String toIloc() {
-		return "cbreq "+mTrueLabel+ ", "+mFalseLabel;
+      return "cbreq "+mTrueLabel+ ", "+mFalseLabel;
    }
 
    public ArrayList<SparcInstruction> toSparc() {

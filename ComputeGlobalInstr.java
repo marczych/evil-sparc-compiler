@@ -2,15 +2,15 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class ComputeGlobalInstr extends IlocInstruction {
-	private String mName;
-	private Register mReg;
+   private String mName;
+   private Register mReg;
    public ComputeGlobalInstr(String name, Register reg) {
       mName = name;
-		mReg = reg;
+      mReg = reg;
    }
 
    public String toIloc() {
-		return "computeglobaladdress "+mName+", "+mReg.toIloc();
+      return "computeglobaladdress "+mName+", "+mReg.toIloc();
    }
 
    public ArrayList<SparcInstruction> toSparc() {

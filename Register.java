@@ -1,5 +1,5 @@
 public class Register {
-	private static int count = 0;
+   private static int count = 0;
 
    protected int mRegNum;
 
@@ -11,7 +11,7 @@ public class Register {
       mRegNum = Register.nextRegister();
    }
 
-	public static int nextRegister() {
+   public static int nextRegister() {
       return count++;
    }
 

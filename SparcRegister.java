@@ -4,13 +4,13 @@ import java.util.Collection;
 
 public class SparcRegister implements Comparable<SparcRegister> {
    // in order of preference for register allocation
-	public enum TYPE {LOCAL, IN, OUT, GLOBAL, VIRTUAL, FP, SPILL};
+   public enum TYPE {LOCAL, IN, OUT, GLOBAL, VIRTUAL, FP, SPILL};
 
-	protected int mNum;
-	protected TYPE mType;
-   
+   protected int mNum;
+   protected TYPE mType;
+
    public static SparcRegister RETURN_REG = new SparcRegister(TYPE.IN, 0);
-	public static SparcRegister ZERO = new SparcRegister(TYPE.GLOBAL, 0);
+   public static SparcRegister ZERO = new SparcRegister(TYPE.GLOBAL, 0);
    public static ArrayList<SparcRegister> inRegs, outRegs, globalRegs, localRegs;
    public static int spillCount = 0;
    public static Hashtable<SparcRegister, SparcRegister> regMap;
@@ -43,8 +43,6 @@ public class SparcRegister implements Comparable<SparcRegister> {
    public static void addToRegHash(Collection<RegGraph.Node> nodes) {
       for (RegGraph.Node node : nodes)
          regMap.put(node.mReg, node.mReal);
-
-      //System.out.println("Hash: " + regMap);
    }
 
    public static void addToSpillHash(RegGraph.Node node) {
@@ -101,37 +99,37 @@ public class SparcRegister implements Comparable<SparcRegister> {
       return spillCount++;
    }
 
-	public SparcRegister(TYPE type, int num) {
+   public SparcRegister(TYPE type, int num) {
       mNum = num;
-		mType = type;
-	}
+      mType = type;
+   }
 
-	public void setNum(int num) {
-		mNum = num;
-	}
+   public void setNum(int num) {
+      mNum = num;
+   }
 
-	public int getNum() {
-		return mNum;
-	}
+   public int getNum() {
+      return mNum;
+   }
 
    public String print() {
       switch (mType) {
-      case IN:
-         return "%i" + mNum;
-      case OUT:
-         return "%o" + mNum;
-		case GLOBAL:
-			return "%g" + mNum;
-		case LOCAL:
-			return "%l" + mNum;
-		case VIRTUAL:
-			return "%vir" + mNum;
-		case FP:
-			return "%fp";
-		case SPILL:
-			return "%spill" + mNum;
-      default:
-         return "%" + mNum;
+         case IN:
+            return "%i" + mNum;
+         case OUT:
+            return "%o" + mNum;
+         case GLOBAL:
+            return "%g" + mNum;
+         case LOCAL:
+            return "%l" + mNum;
+         case VIRTUAL:
+            return "%vir" + mNum;
+         case FP:
+            return "%fp";
+         case SPILL:
+            return "%spill" + mNum;
+         default:
+            return "%" + mNum;
       }
    }
 

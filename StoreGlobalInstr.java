@@ -2,16 +2,16 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class StoreGlobalInstr extends IlocInstruction {
-	private Register mReg;
-	private String mName;
+   private Register mReg;
+   private String mName;
 
    public StoreGlobalInstr(Register reg, String name) {
       mReg = reg;
-		mName = name;
+      mName = name;
    }
 
    public String toIloc() {
-		return "storeglobal "+mReg.toIloc()+", "+mName;
+      return "storeglobal "+mReg.toIloc()+", "+mName;
    }
 
    public ArrayList<SparcInstruction> toSparc() {

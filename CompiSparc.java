@@ -2,20 +2,20 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 
 public class CompiSparc extends SparcInstruction {
-	protected SparcRegister src1;
-	protected int src2;
+   protected SparcRegister src1;
+   protected int src2;
 
    public CompiSparc(SparcRegister r1, int r2) {
-		src1 = r1;
-		src2 = r2;
+      src1 = r1;
+      src2 = r2;
    }
 
    public ArrayList<SparcRegister> getSources() {
-		ArrayList<SparcRegister> list = new ArrayList<SparcRegister>();
+      ArrayList<SparcRegister> list = new ArrayList<SparcRegister>();
 
-		list.add(src1);
+      list.add(src1);
 
-		return list;
+      return list;
    }
 
    public ArrayList<SparcRegister> getDests() {
@@ -23,7 +23,7 @@ public class CompiSparc extends SparcInstruction {
    }
 
    public String toString() {
-		return "cmp "+src1+", "+src2;
+      return "cmp "+src1+", "+src2;
    }
 
    public void replaceSpills(Hashtable<SparcRegister, SparcRegister> spills) {

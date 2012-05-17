@@ -2,19 +2,19 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class LoadaiInstr extends IlocInstruction {
-	private Register mReg, mDest;
-	private String mOff;
+   private Register mReg, mDest;
+   private String mOff;
    private Struct mStruct;
 
-	public LoadaiInstr(Register reg, String off, Struct struct, Register dest) {
+   public LoadaiInstr(Register reg, String off, Struct struct, Register dest) {
       mReg = reg;
-		mOff = off;
-		mDest = dest;
+      mOff = off;
+      mDest = dest;
       mStruct = struct;
    }
 
    public String toIloc() {
-		return "loadai " + mReg.toIloc() + ", "+mOff+", "+mDest.toIloc();
+      return "loadai " + mReg.toIloc() + ", "+mOff+", "+mDest.toIloc();
    }
 
    public ArrayList<SparcInstruction> toSparc() {

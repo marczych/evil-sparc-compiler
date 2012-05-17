@@ -13,7 +13,7 @@ public abstract class IlocInstruction {
 
       if ((ret = hash.get(reg)) != null)
          return ret;
-      
+
       hash.put(reg, ret = new Register());
       return ret;
    }
