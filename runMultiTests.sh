@@ -15,63 +15,17 @@ function jobidfromstring()
 ulimit -s unlimited
 
 joblist=""
-./fileRun.sh BenchMarkishTopics &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh bert &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh biggest &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh binaryConverter &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh creativeBenchMarkName &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh fact_sum &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh Fibonacci &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh GeneralFunctAndOptimize &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh hailstone &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh hanoi_benchmark &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh killerBubbles &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh mile1 &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh mixed &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh OptimizationBenchmark &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh primes &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh programBreaker &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh stats &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh TicTac &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
-./fileRun.sh wasteOfCycles &
-lastjob=`jobidfromstring $(jobs %%)`
-joblist="$joblist $lastjob"
+
+for benchmark in "BenchMarkishTopics" "bert" "biggest" "binaryConverter"\
+   "creativeBenchMarkName" "fact_sum" "Fibonacci" "GeneralFunctAndOptimize"\
+   "hailstone" "hanoi_benchmark" "killerBubbles" "mile1" "mixed"\
+   "OptimizationBenchmark" "primes" "programBreaker" "stats" "TicTac"\
+   "uncreativeBenchmark" "wasteOfCycles"
+do
+   ./fileRun.sh $benchmark &
+   lastjob=`jobidfromstring $(jobs %%)`
+   joblist="$joblist $lastjob"
+done
 
 count=20
 for job in $joblist ; do
