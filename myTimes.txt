@@ -1,0 +1,21 @@
+Benchmark, -nofinline -nodeadcode, -finline -nodeadcode, -nofinline -deadcode, -finline -deadcode
+BenchMarkishTopics, 0.00, 0.00, 0.00, 0.00
+bert, 0.00, 0.00, 0.00, 0.00
+biggest, 0.00, 0.00, 0.00, 0.00
+binaryConverter, 15.13, 15.14, 15.14, 15.13
+creativeBenchMarkName, 17.32, 17.32, 17.32, 17.32
+fact_sum, 0.00, 0.00, 0.00, 0.00
+Fibonacci, 34.76, 34.76, 34.77, 34.76
+GeneralFunctAndOptimize, 15.85, 15.46, 15.30, 14.98
+hailstone, 0.00, 0.00, 0.00, 0.00
+hanoi_benchmark, 89.26, 89.25, 89.27, 89.27
+killerBubbles, 36.73, 28.72, 36.75, 28.72
+mile1, 0.21, 0.22, 0.22, 0.22
+mixed, 14.72, 13.72, 8.37, 6.82
+OptimizationBenchmark, 0.18, 0.19, 0.15, 0.15
+primes, 1.65, 1.65, 1.64, 1.64
+programBreaker, 0.04, 0.04, 0.04, 0.04
+stats, 0.00, 0.00, 0.00, 0.00
+TicTac, 0.00, 0.00, 0.00, 0.00
+uncreativeBenchmark, 0.00, 0.00, 0.00, 0.00
+wasteOfCycles, 0.00, 0.00, 0.00, 0.00
