@@ -1,0 +1,30 @@
+fun bigFunction(int one, int two, int three, int four, int five, int six,
+ int seven, int eight) int {
+   print one endl;
+   print two endl;
+   print three endl;
+   print four endl;
+   print five endl;
+   print six endl;
+   print seven endl;
+   print eight endl;
+
+   return one + two - three * four + five / six + seven - eight;
+}
+
+fun main() int {
+   int one, two, three, four, five, six, seven, eight;
+
+   read one;
+   read two;
+   read three;
+   read four;
+   read five;
+   read six;
+   read seven;
+   read eight;
+
+   print bigFunction(one, two, three, four, five, six, seven, eight) endl;
+
+   return 0;
+}
