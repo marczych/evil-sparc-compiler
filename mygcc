@@ -1,4 +1,0 @@
-gcc -mcpu=v9 $1.s -o $1
-if [ $? == 0 ]; then
-   ./$1
-fi
