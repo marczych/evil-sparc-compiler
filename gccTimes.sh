@@ -7,11 +7,8 @@ FILE="gccTimes.txt"
 # Truncate the file and start with the column headers
 echo "Benchmark, O0, O1, O2, O3" > $FILE
 
-for benchmark in "BenchMarkishTopics" "bert" "biggest" "binaryConverter"\
-   "creativeBenchMarkName" "fact_sum" "Fibonacci" "GeneralFunctAndOptimize"\
-   "hailstone" "hanoi_benchmark" "killerBubbles" "mile1" "mixed"\
-   "OptimizationBenchmark" "primes" "programBreaker" "stats" "TicTac"\
-   "uncreativeBenchmark" "wasteOfCycles"
+BENCHMARKS=`ls benchmarks`
+for benchmark in $BENCHMARKS
 do
    BENCHMARK_STATS="$benchmark"
 

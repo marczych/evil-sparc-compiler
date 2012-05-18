@@ -16,11 +16,8 @@ ulimit -s unlimited
 
 joblist=""
 
-for benchmark in "BenchMarkishTopics" "bert" "biggest" "binaryConverter"\
-   "creativeBenchMarkName" "fact_sum" "Fibonacci" "GeneralFunctAndOptimize"\
-   "hailstone" "hanoi_benchmark" "killerBubbles" "mile1" "mixed"\
-   "OptimizationBenchmark" "primes" "programBreaker" "stats" "TicTac"\
-   "uncreativeBenchmark" "wasteOfCycles"
+BENCHMARKS=`ls benchmarks`
+for benchmark in $BENCHMARKS
 do
    ./fileRun.sh $benchmark &
    lastjob=`jobidfromstring $(jobs %%)`

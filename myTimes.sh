@@ -8,11 +8,8 @@ FILE="myTimes.txt"
 echo "" >> $FILE
 echo "Benchmark, -nofinline -nodeadcode, -finline -nodeadcode, -nofinline -deadcode, -finline -deadcode" >> $FILE
 
-for benchmark in "BenchMarkishTopics" "bert" "biggest" "binaryConverter"\
-   "creativeBenchMarkName" "fact_sum" "Fibonacci" "GeneralFunctAndOptimize"\
-   "hailstone" "hanoi_benchmark" "killerBubbles" "mile1" "mixed"\
-   "OptimizationBenchmark" "primes" "programBreaker" "stats" "TicTac"\
-   "uncreativeBenchmark" "wasteOfCycles"
+BENCHMARKS=`ls benchmarks`
+for benchmark in $BENCHMARKS
 do
    BENCHMARK_STATS="$benchmark"
 
