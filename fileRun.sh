@@ -5,6 +5,17 @@
 
 ulimit -s unlimited
 
+if [ ! -e benchmarks/$1/$1.ev ]
+then
+   echo "Benchmark $1 not found!"
+   exit
+fi
+
+if [ $# -gt 1 ]
+then
+   java Evil benchmarks/$1/$1.ev
+fi
+
 echo ----------============= Running $1 =============-----------
 gcc -mcpu=v9 benchmarks/$1/$1.s -o benchmarks/$1/my.$1
 if [ $? == 0 ]; then
