@@ -4,16 +4,16 @@ import java.util.TreeSet;
 
 public class LoadInArgInstr extends IlocInstruction {
    protected String mName;
-   protected int mIdx;
+   protected int argNumber;
    protected Register mReg;
    public LoadInArgInstr(String varName, int idx, Register reg) {
       mName = varName;
-      mIdx = idx;
+      argNumber = idx;
       mReg = reg;
    }
 
    public String toIloc() {
-      return "loadinargument "+mName+", "+mIdx+", "+mReg.toIloc();
+      return "loadinargument "+mName+", "+argNumber+", "+mReg.toIloc();
    }
 
    public ArrayList<SparcInstruction> toSparc() {
@@ -22,7 +22,13 @@ public class LoadInArgInstr extends IlocInstruction {
       TreeSet<SparcRegister> resSet = new TreeSet<SparcRegister>();
       resSet.addAll(SparcRegister.outRegs);
       RegGraph.addRestricted(mReg.toSparc(), resSet);
-      list.add(new MovSparc(SparcRegister.getIn(mIdx), mReg.toSparc()));
+
+      if (argNumber < 6) {
+         list.add(new MovSparc(SparcRegister.getIn(argNumber), mReg.toSparc()));
+      } else {
+         list.add(new LdswSparc(SparcRegister.framePointer,
+          mReg.toSparc(), (argNumber - 6) * 4 + 68));
+      }
 
       return list;
    }
@@ -32,6 +38,6 @@ public class LoadInArgInstr extends IlocInstruction {
    }
 
    public IlocInstruction copy() {
-      return new LoadInArgInstr(mName, mIdx, mReg);
+      return new LoadInArgInstr(mName, argNumber, mReg);
    }
 }

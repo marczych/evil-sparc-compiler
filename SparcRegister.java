@@ -4,7 +4,7 @@ import java.util.Collection;
 
 public class SparcRegister implements Comparable<SparcRegister> {
    // in order of preference for register allocation
-   public enum TYPE {LOCAL, IN, OUT, GLOBAL, VIRTUAL, FP, SPILL};
+   public enum TYPE {LOCAL, IN, OUT, GLOBAL, VIRTUAL, FP, SP, SPILL};
 
    protected int mNum;
    protected TYPE mType;
@@ -16,9 +16,11 @@ public class SparcRegister implements Comparable<SparcRegister> {
    public static Hashtable<SparcRegister, SparcRegister> regMap;
    public static Hashtable<SparcRegister, SparcRegister> spillMap;
    public static SparcRegister framePointer;
+   public static SparcRegister stackPointer;
 
    static {
       framePointer = new SparcRegister(TYPE.FP, 0);
+      stackPointer = new SparcRegister(TYPE.SP, 0);
 
       inRegs = new ArrayList<SparcRegister>();
       for (int i = 0; i < 6; i ++)
@@ -126,6 +128,8 @@ public class SparcRegister implements Comparable<SparcRegister> {
             return "%vir" + mNum;
          case FP:
             return "%fp";
+         case SP:
+            return "%sp";
          case SPILL:
             return "%spill" + mNum;
          default:

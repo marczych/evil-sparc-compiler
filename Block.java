@@ -107,7 +107,8 @@ public class Block {
       for (IlocInstruction instr : mInstructionList) {
          if (instr instanceof LoadInArgInstr) {
             LoadInArgInstr loadIn = (LoadInArgInstr)instr;
-            ret.addInstruction(new LoadInInlineArgInstr(loadIn.mIdx, loadIn.mReg));
+            ret.addInstruction(new LoadInInlineArgInstr(loadIn.argNumber,
+             loadIn.mReg));
          }
          else if (instr instanceof StoreRetInstr) {
             StoreRetInstr storeRet = (StoreRetInstr)instr;
