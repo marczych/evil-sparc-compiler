@@ -16,17 +16,20 @@ ulimit -s unlimited
 
 joblist=""
 
+count=0
 BENCHMARKS=`ls benchmarks`
 for benchmark in $BENCHMARKS
 do
+   let "count += 1"
    ./fileRun.sh $benchmark &
    lastjob=`jobidfromstring $(jobs %%)`
    joblist="$joblist $lastjob"
 done
 
-count=20
+total=$count
+
 for job in $joblist ; do
    wait %$job
    let "count -= $?"
 done
-echo "$count/20 passed!"
+echo "$count/$total passed!"
