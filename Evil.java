@@ -47,12 +47,14 @@ public class Evil
 			boolean checked = true;
 
          tparser.verify(verified);
-			if(verified.isTrue()) {
-			nodes.reset();
-			CFG controlflow = new CFG(nodes);
-         controlflow.setFile(_inputFile);
-			controlflow.generate();
-			}
+         if(verified.isTrue()) {
+            nodes.reset();
+            CFG controlflow = new CFG(nodes);
+            controlflow.setFile(_inputFile);
+            controlflow.generate();
+         } else {
+            System.exit(1);
+         }
       }
       catch (org.antlr.runtime.RecognitionException e)
       {
