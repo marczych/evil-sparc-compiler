@@ -24,6 +24,7 @@ public class Block {
    protected Block mInlineExit;
    protected long mNumber;
    protected int mLargestNumArgs;
+   protected int mNumArgs;
    protected int mSpillCount;
    protected Register mCondReg;
    protected boolean mReturn = false;
@@ -83,7 +84,7 @@ public class Block {
    public boolean checkInline() {
       //don't inline main... that would be bad.
       if (FUNCTION_INLINING && !mCallsSelf && !mLoop && checkInlineLength() &&
-       !getFullLabel().equals("main"))
+       !getFullLabel().equals("main") && mNumArgs <= 6)
          mInline = true;
       else
          return mInline;
@@ -353,6 +354,10 @@ public class Block {
 
    public void setLabel(String label) {
       mLabel = label;
+   }
+
+   public void setNumArgs(int num) {
+      mNumArgs = num;
    }
 
    public void setEntry() {

@@ -277,6 +277,7 @@ functions @init
 		{
          entryBlock = new Block($id.text);
          entryBlock.setEntry();
+         entryBlock.setNumArgs(list.size());
          entryBlock.appendInstruction(list);
 		   exitBlock = new Block("FUN"+$id.text+"EXIT");
          exitBlock.addInstruction(new RetInstr());
