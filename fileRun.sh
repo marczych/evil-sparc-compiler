@@ -13,7 +13,19 @@ fi
 
 if [ $# -gt 1 ]
 then
+   make
+
+   if [ $? != 0 ]
+   then
+      exit
+   fi
+
    java Evil benchmarks/$1/$1.ev
+
+   if [ $? != 0 ]
+   then
+      exit
+   fi
 fi
 
 echo ----------============= Running $1 =============-----------
