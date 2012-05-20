@@ -142,45 +142,57 @@ generate : ^(PROGRAM
    RegGraph regGraph;
    boolean liveDone = false, deadDone = true;
 
+   // Convert ILOC instructions into Sparc instructions for each function.
    for (Block fun : funs) {
-      if (!fun.mInline)
+      if (!fun.mInline) {
          fun.makeSparc();
+      }
    }
 
+   // Perform live range analysis and graph coloring for each function
    for (Block fun : funs) {
       if (fun.mInline)
          continue;
 
+      // Get every block in the function.
       fun.getAllBlocks(allBlocks = new ArrayList<Block>());
       SparcRegister.spillCount = 0;
 
       for (;;) {
-
          liveDone = false;
 
+         // Make the live out set until there aren't any changes.
          while (!liveDone) {
             liveDone = true;
 
+            // Make the live out set for each block keeping track of whether
+            // or not any of them have changed.
             for (Block blk : allBlocks) {
                liveDone &= !blk.makeLiveOut();
             }
          }
 
          regGraph = new RegGraph();
+         // This makes the interference graph that is used in graph coloring.
          for (Block blk : allBlocks) {
             blk.makeInstrLiveOut(regGraph);
          }
 
+         // Perform dead code removal and start over if we have removed
+         // any dead instructions because live range analysis will change.
          deadDone = true;
          if (Block.DEAD_CODE)
             for (Block blk : allBlocks)
                deadDone &= !blk.checkDead();
 
+         // If graph coloring was successful then continue on to the next function.
          if (deadDone && regGraph.colorGraph()) {
             fun.setSpillCount(SparcRegister.spillCount);
             break;
          }
 
+         // We need to perform live range analysis again so we need to
+         // remake the sparc instructions.
          for (Block blk : allBlocks)
             blk.clearMakeSparced();
 

@@ -63,6 +63,10 @@ public class Block {
       return getFullLabel().hashCode();
    }
 
+   /**
+    * Converts IlocInstructions into SparcInstructions and generates
+    * the gen and kill set. Does the same for any subsequent blocks.
+    */
    public void makeSparc() {
       if (mMakeSparced)
          return;
@@ -186,6 +190,10 @@ public class Block {
       mMakeSparced = false;
    }
 
+   /**
+    * Remakes the sparc instructions. This is called after spills occur
+    * and we must inject loads and stores to get the values we care about.
+    */
    public void remakeSparc() {
       if (mMakeSparced)
          return;
@@ -195,6 +203,9 @@ public class Block {
       ArrayList<SparcInstruction> old = mSparcList;
       mSparcList = new ArrayList<SparcInstruction>();
 
+      // Go through every old sparc instructon and get all necessary
+      // instructoins - most likely just the same one but it could also
+      // have a load/store if it uses a spill register.
       for (SparcInstruction instr : old)
          mSparcList.addAll(instr.getInstrs());
 
@@ -259,7 +270,10 @@ public class Block {
       list.add(this);
    }
 
-   // return true when live out has changed
+   /**
+    * Generates the live out set for this block.
+    * Returns true if the live out has changed.
+    */
    public boolean makeLiveOut() {
       TreeSet<SparcRegister> newLiveOut = new TreeSet<SparcRegister>();
 
@@ -271,22 +285,30 @@ public class Block {
       if (mLiveOut.equals(newLiveOut))
          return false;
 
-      //System.out.println(getFullLabel() + " - " + mLiveOut + " | " + newLiveOut);
-
       mLiveOut = newLiveOut;
 
       return true;
    }
 
+   /**
+    * Find all register interferences and add them to the given graph.
+    */
    public void makeInstrLiveOut(RegGraph graph) {
       TreeSet<SparcRegister> prev = mLiveOut;
       SparcInstruction instr;
 
+      // Currently we only have live range analysis on a block level. That is
+      // to say that we know what values are needed after this block.
+      // Now we need to do this for each instruction to determine interferences.
+      // Loop through instructions backwards adding edges as we go.
       for (int i = mSparcList.size() - 1; i >= 0; i --) {
          instr = mSparcList.get(i);
+         // Start this instruction's live out set to be the same as the
+         // previous (sequentially after) instruction's liv eout.
          instr.mLiveOut = (TreeSet<SparcRegister>)prev.clone();
 
          for (SparcRegister dest : instr.getDests()) {
+            // We're killing the value so its live range starts here.
             instr.mLiveOut.remove(dest);
 
             // add edge from dest to all elements in Live
@@ -294,6 +316,7 @@ public class Block {
                graph.addEdge(dest, live);
          }
 
+         // Any register this instruction uses is live for any previous instructions.
          for (SparcRegister src : instr.getSources()) {
             instr.mLiveOut.add(src);
          }
@@ -310,6 +333,10 @@ public class Block {
       return mGenSet;
    }
 
+   /**
+    * Add registers to the given liveout set based on the given block's liveout,
+    * gen, and kill sets.
+    */
    private void liveOutHelper(Block succ, TreeSet<SparcRegister> liveOut) {
       TreeSet<SparcRegister> sLiveOut = succ.getLiveOut(), sKillSet =
        succ.getKillSet();
