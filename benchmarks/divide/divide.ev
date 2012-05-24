@@ -1,0 +1,43 @@
+fun div(int one, int two) int {
+   return one / two;
+}
+
+fun main() int {
+   int input;
+   int op1;
+   int op2;
+   int op3;
+   int res1;
+   int res2;
+
+   read input;
+
+   while (input != -1) {
+      read op1;
+      read op2;
+
+      if (input == 0) {
+         res1 = op1 / op2;
+         res2 = div(op1, op2);
+      } else { if (input == 1) {
+         res1 = op2 / op1;
+         res2 = div(op2, op1);
+      } else { if (input == 2) {
+         read op3;
+
+         res1 = (op1 + op2) / (op1 - op3);
+         res2 = div((op1 + op2), (op1 - op3));
+      } else { if (input == 3) {
+         read op3;
+
+         res1 = (op3 - op2) / (op1 + op2);
+         res2 = div((op3 - op2), (op1 + op2));
+      }}}}
+
+      print res1;
+      print res2 endl;
+      read input;
+   }
+
+   return 0;
+}
