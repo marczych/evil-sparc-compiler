@@ -25,6 +25,7 @@ options
    protected static final String PRINTF_GLOBAL = "PRINTF_GLOBAL";
    protected static final String PRINTF_ENDL_GLOBAL = "PRINTF_ENDL_GLOBAL";
    protected static final String SCANF_GLOBAL = "SCANF_GLOBAL";
+   protected static final String INVOKE_TYPE = "INVOKE_TYPE";
    protected String mFileName;
 	private static int nextGlobalLocation = 0;
    private RegisterTable regTable = new RegisterTable();
@@ -383,6 +384,10 @@ statements [Block b, BlockReference br] :
    }
 	| ^(RETURN r=expression[br]?)
    {
+      if ($r.type != null && $r.type.equals(INVOKE_TYPE)) {
+         System.out.println("Tail call");
+      }
+
       if ($r.r != null)
          br.getRef().addInstruction(new StoreRetInstr($r.r));
 
@@ -470,7 +475,7 @@ lvalue_h [Block blk] returns [Register r = null, Struct s = null] :
 ;
 
 expression [BlockReference br]
-  returns [Register r = null, Struct struct = null] :
+  returns [Register r = null, Struct struct = null, String type = null] :
 	^(AND r1=expression[br] r2=expression[br])
    {
       $r = new Register();
@@ -539,6 +544,7 @@ expression [BlockReference br]
    }
 	^(INVOKE id=ID arguments[br.getRef(), br])
    {
+      $type = INVOKE_TYPE;
       $r = new Register();
       if ($id.text.equals(entryBlock.getLabel()))
          entryBlock.mCallsSelf = true;
