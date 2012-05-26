@@ -581,11 +581,8 @@ expression [BlockReference br, Boolean isReturning]
    }
 	| ^(NEG r1=expression[br, new Boolean(false)])
    {
-      // TODO: don't use a multiply...
-      Register neg = new Register();
-      br.getRef().addInstruction(new LoadiInstr(neg, -1));
       $r = new Register();
-      br.getRef().addInstruction(new MultInstr(neg, $r1.r, $r));
+      br.getRef().addInstruction(new NegInstr($r1.r, $r));
    }
 	| num=INTEGER
    {
