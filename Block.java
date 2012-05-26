@@ -486,6 +486,7 @@ public class Block {
       return mLabel;
    }
 
+   //TODO Use StringBuilder
    public String toSparc() {
       if (mPrinted) {
          return "";
@@ -509,6 +510,7 @@ public class Block {
          temp += "\n\t!#PROLOGUE# 0\n";
          temp += "\tsave\t%sp, -"+saveSize+", %sp\n";
          temp += "\t!#PROLOGUE# 1";
+         temp += "\n" + getFullLabel() + "BODY:";
       }
 
       for (SparcInstruction instr : mSparcList)

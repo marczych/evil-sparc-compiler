@@ -138,7 +138,6 @@ generate : ^(PROGRAM
 
    Collection<Block> funs = funLabels.values();
    StringBuilder strBuild = new StringBuilder();
-   String temp;
    ArrayList<Block> allBlocks;
    RegGraph regGraph;
    boolean liveDone = false, deadDone = true;
@@ -213,7 +212,7 @@ generate : ^(PROGRAM
       strBuild.append("\t.align 4\n");
       strBuild.append("\t.global " + fun.getFullLabel() + "\n");
       strBuild.append("\t.type\t" + fun.getFullLabel() + ", #function\n");
-      strBuild.append(temp = fun.toSparc());
+      strBuild.append(fun.toSparc());
       strBuild.append("\t.size\t" + fun.getFullLabel() + ", .-" + fun.getFullLabel() + "\n");
    }
 
@@ -384,10 +383,7 @@ statements [Block b, BlockReference br] :
    }
 	| ^(RETURN r=expression[br, new Boolean(true)]?)
    {
-      if ($r.type != null && $r.type.equals(INVOKE_TYPE) &&
-       $r.funName != null) {
-         System.out.println("Tail call: " + $r.funName);
-      } else {
+      if (!$r.tail) {
          if ($r.r != null)
             br.getRef().addInstruction(new StoreRetInstr($r.r));
 
@@ -476,7 +472,7 @@ lvalue_h [Block blk] returns [Register r = null, Struct s = null] :
 ;
 
 expression [BlockReference br, Boolean isReturning]
-  returns [Register r = null, Struct struct = null, String type = null, String funName = null] :
+  returns [Register r = null, Struct struct = null, boolean tail = false] :
 	^(AND r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
    {
       $r = new Register();
@@ -543,7 +539,7 @@ expression [BlockReference br, Boolean isReturning]
    {
       String funName = br.getRef().getLabel();
    }
-	^(INVOKE id=ID arguments[br.getRef(), br])
+	^(INVOKE id=ID list=arguments[br.getRef(), br])
    {
       $r = new Register();
       if ($id.text.equals(entryBlock.getLabel()))
@@ -564,10 +560,18 @@ expression [BlockReference br, Boolean isReturning]
          inlineExit.mIsInExit = true;
          cont.addInstruction(new LoadRetInstr($r));
          br.setRef(cont);
-      } else if (isReturning) {
-         // Tail call time. Let the RETURN take care of it.
-         $type = INVOKE_TYPE;
-         $funName = $id.text;
+      } else if (isReturning) { // TODO: only if less than 6 arguments
+         // Tail call time.
+         $tail = true;
+
+         System.out.println("Tail: " + $id.text);
+
+         // But first we need to put the arguments in the in registers.
+         for (StoreoutInstr storeInstr : $list.storeOutList) {
+            storeInstr.setTail(true);
+         }
+
+         br.getRef().addInstruction(new CallInstr(fun.getFullLabel(), true));
       } else {
          br.getRef().addInstruction(new CallInstr(fun.getFullLabel()));
          br.getRef().addInstruction(new LoadRetInstr($r));
@@ -625,14 +629,19 @@ expression [BlockReference br, Boolean isReturning]
    }
 ;
 
-arguments [Block b, BlockReference br] :
+arguments [Block b, BlockReference br]
+  returns [ArrayList<StoreoutInstr> storeOutList = null] :
    {
       ArrayList<Register> regs = new ArrayList<Register>();
    }
 	^(ARGS arg_expression[regs, br]*)
    {
+      storeOutList = new ArrayList<StoreoutInstr>();
+      StoreoutInstr instr;
       for (int i = 0; i < regs.size(); i ++) {
-         br.getRef().addInstruction(new StoreoutInstr(regs.get(i), i));
+         instr = new StoreoutInstr(regs.get(i), i);
+         storeOutList.add(instr);
+         br.getRef().addInstruction(instr);
       }
 
 		numArgs = new Integer(regs.size());
