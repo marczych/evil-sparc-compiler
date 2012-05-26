@@ -7,6 +7,7 @@ public class Block {
    protected final static long BASE_INSTR_LIMIT = 15;
    public static boolean FUNCTION_INLINING = true;
    public static boolean DEAD_CODE = true;
+   public static boolean TAIL_CALL = true;
    public static int deadCount = 0;
    protected static long mCount = 0;
    protected static Block curExit;

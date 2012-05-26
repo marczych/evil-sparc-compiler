@@ -560,7 +560,7 @@ expression [BlockReference br, Boolean isReturning]
          inlineExit.mIsInExit = true;
          cont.addInstruction(new LoadRetInstr($r));
          br.setRef(cont);
-      } else if (isReturning) { // TODO: only if less than 6 arguments
+      } else if (isReturning && Block.TAIL_CALL) {
          // Tail call time.
          $tail = true;
 
