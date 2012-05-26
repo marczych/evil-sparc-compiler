@@ -322,9 +322,9 @@ freeblock [Block b, BlockReference br] :
 statements [Block b, BlockReference br] :
    freeblock[b, br]
 	| ^(ASSIGN 
-			r=expression[br] 
+			r=expression[br, new Boolean(false)] 
 			lvalue[br.getRef(), br, $r.r])
-	| ^(PRINT r=expression[br] endl=ENDL?)
+	| ^(PRINT r=expression[br, new Boolean(false)] endl=ENDL?)
    {
       br.getRef().addInstruction(new PrintInstr($r.r, $endl != null));
    }
@@ -340,7 +340,7 @@ statements [Block b, BlockReference br] :
    {
       String funName = br.getRef().getLabel();
    }
-   ^(IF r=expression[br] thenBlock=block["THEN"] elseBlock=block["ELSE"]?)
+   ^(IF r=expression[br, new Boolean(false)] thenBlock=block["THEN"] elseBlock=block["ELSE"]?)
 	{ 
 		Block cont = new Block(funName + "CONT");
       cont.addThen(exitBlock);
@@ -365,7 +365,7 @@ statements [Block b, BlockReference br] :
    {
       String funName = br.getRef().getLabel();
    }
-	^(WHILE r=expression[br] body=block["WHILE"] r2=expression[condBR = new BlockReference($body.end)])
+	^(WHILE r=expression[br, new Boolean(false)] body=block["WHILE"] r2=expression[condBR = new BlockReference($body.end), new Boolean(false)])
 	{
       entryBlock.mLoop = true;
 		Block cont = new Block(funName + "CONT");
@@ -378,21 +378,22 @@ statements [Block b, BlockReference br] :
 		condBR.getRef().appendCondition($r2.r); 
       br.setRef(cont);
 	}
-	| ^(DELETE r=expression[br])
+	| ^(DELETE r=expression[br, new Boolean(false)])
    {
       br.getRef().addInstruction(new DelInstr($r.r));
    }
-	| ^(RETURN r=expression[br]?)
+	| ^(RETURN r=expression[br, new Boolean(true)]?)
    {
-      if ($r.type != null && $r.type.equals(INVOKE_TYPE)) {
-         System.out.println("Tail call");
+      if ($r.type != null && $r.type.equals(INVOKE_TYPE) &&
+       $r.funName != null) {
+         System.out.println("Tail call: " + $r.funName);
+      } else {
+         if ($r.r != null)
+            br.getRef().addInstruction(new StoreRetInstr($r.r));
+
+         br.getRef().addThen(exitBlock);
+         br.getRef().setReturn();
       }
-
-      if ($r.r != null)
-         br.getRef().addInstruction(new StoreRetInstr($r.r));
-
-		br.getRef().addThen(exitBlock);
-		br.getRef().setReturn();
    }
 	| 
    {
@@ -474,63 +475,63 @@ lvalue_h [Block blk] returns [Register r = null, Struct s = null] :
    }
 ;
 
-expression [BlockReference br]
-  returns [Register r = null, Struct struct = null, String type = null] :
-	^(AND r1=expression[br] r2=expression[br])
+expression [BlockReference br, Boolean isReturning]
+  returns [Register r = null, Struct struct = null, String type = null, String funName = null] :
+	^(AND r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new AndInstr($r1.r, $r2.r, $r));
    }
-	| ^(OR r1=expression[br] r2=expression[br])
+	| ^(OR r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new OrInstr($r1.r, $r2.r, $r));
    }
-	| ^(EQ r1=expression[br] r2=expression[br])
+	| ^(EQ r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
    {
       $r = makeMoveAny("eq", br.getRef(), $r1.r, $r2.r);
    }
-	| ^(LT r1=expression[br] r2=expression[br])
+	| ^(LT r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
    {
       $r = makeMoveAny("lt", br.getRef(), $r1.r, $r2.r);
    }
-	| ^(GT r1=expression[br] r2=expression[br])
+	| ^(GT r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
    {
       $r = makeMoveAny("gt", br.getRef(), $r1.r, $r2.r);
    }
-	| ^(NE r1=expression[br] r2=expression[br])
+	| ^(NE r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
    {
       $r = makeMoveAny("ne", br.getRef(), $r1.r, $r2.r);
    }
-	| ^(LE r1=expression[br] r2=expression[br])
+	| ^(LE r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
    {
       $r = makeMoveAny("le", br.getRef(), $r1.r, $r2.r);
    }
-	| ^(GE r1=expression[br] r2=expression[br])
+	| ^(GE r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
    {
       $r = makeMoveAny("ge", br.getRef(), $r1.r, $r2.r);
    }
-	| ^(PLUS r1=expression[br] r2=expression[br])
+	| ^(PLUS r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new AddInstr($r1.r, $r2.r, $r));
    }
-	| ^(MINUS r1=expression[br] r2=expression[br])
+	| ^(MINUS r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new SubInstr($r1.r, $r2.r, $r));
    }
-	| ^(TIMES r1=expression[br] r2=expression[br])
+	| ^(TIMES r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new MultInstr($r1.r, $r2.r, $r));
    }
-	| ^(DIVIDE r1=expression[br] r2=expression[br])
+	| ^(DIVIDE r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new DivInstr($r1.r, $r2.r, $r));
    }
-	| ^(DOT r1=expression[br] id=ID)
+	| ^(DOT r1=expression[br, new Boolean(false)] id=ID)
    {
       $r = new Register();
       String type = $r1.struct.getStructType($id.text);
@@ -544,21 +545,13 @@ expression [BlockReference br]
    }
 	^(INVOKE id=ID arguments[br.getRef(), br])
    {
-      $type = INVOKE_TYPE;
       $r = new Register();
       if ($id.text.equals(entryBlock.getLabel()))
          entryBlock.mCallsSelf = true;
 
       Block fun = funLabels.get($id.text);
 
-      if (!fun.mInline) {
-         br.getRef().addInstruction(new CallInstr(fun.getFullLabel()));
-         br.getRef().addInstruction(new LoadRetInstr($r));
-         if(largestNumArgs < numArgs) {
-            largestNumArgs = numArgs.intValue();
-         }
-      }
-      else {
+      if (fun.mInline) {
          Block cont = new Block(funName + "CONT");
          Hashtable<Block, Block> blocks = new Hashtable<Block, Block>();
          Hashtable<Register, Register> regs = new Hashtable<Register, Register>();
@@ -571,10 +564,21 @@ expression [BlockReference br]
          inlineExit.mIsInExit = true;
          cont.addInstruction(new LoadRetInstr($r));
          br.setRef(cont);
+      } else if (isReturning) {
+         // Tail call time. Let the RETURN take care of it.
+         $type = INVOKE_TYPE;
+         $funName = $id.text;
+      } else {
+         br.getRef().addInstruction(new CallInstr(fun.getFullLabel()));
+         br.getRef().addInstruction(new LoadRetInstr($r));
+         if(largestNumArgs < numArgs) {
+            largestNumArgs = numArgs.intValue();
+         }
       }
    }
-	| ^(NEG r1=expression[br])
+	| ^(NEG r1=expression[br, new Boolean(false)])
    {
+      // TODO: don't use a multiply...
       Register neg = new Register();
       br.getRef().addInstruction(new LoadiInstr(neg, -1));
       $r = new Register();
@@ -595,7 +599,7 @@ expression [BlockReference br]
       $r = new Register();
       br.getRef().addInstruction(new LoadiInstr($r, FALSE_VAL));
    }
-	| ^(NOT r1=expression[br])
+	| ^(NOT r1=expression[br, new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new LoadiInstr($r, TRUE_VAL));
@@ -636,7 +640,7 @@ arguments [Block b, BlockReference br] :
 ;
 
 arg_expression [ArrayList<Register> regs, BlockReference br] :
-	reg=expression[br]
+	reg=expression[br, new Boolean(false)]
    {
       regs.add($reg.r);
    }
