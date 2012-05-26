@@ -19,3 +19,28 @@ stats, 0.00, 0.00, 0.00, 0.00
 TicTac, 0.00, 0.00, 0.00, 0.00
 uncreativeBenchmark, 0.00, 0.00, 0.00, 0.00
 wasteOfCycles, 0.00, 0.00, 0.00, 0.00
+
+Benchmark, -noopt, -finline, -deadcode, -tailcall, -allopt
+argumentSpill, 0.00, 0.00, 0.00, 0.00, 0.00
+BenchMarkishTopics, 0.00, 0.00, 0.00, 0.00, 0.00
+bert, 0.00, 0.00, 0.00, 0.00, 0.00
+biggest, 0.00, 0.00, 0.00, 0.00, 0.00
+binaryConverter, 15.14, 15.13, 15.14, 15.14, 15.13
+creativeBenchMarkName, 17.32, 17.32, 17.32, 17.31, 17.32
+divide, 0.00, 0.00, 0.00, 0.00, 0.00
+fact_sum, 0.00, 0.00, 0.00, 0.00, 0.00
+Fibonacci, 34.77, 34.77, 34.77, 34.77, 34.77
+GeneralFunctAndOptimize, 15.86, 15.45, 15.30, 15.85, 14.90
+hailstone, 0.00, 0.00, 0.00, 0.00, 0.00
+hanoi_benchmark, 89.26, 89.25, 89.27, 89.25, 89.27
+killerBubbles, 36.75, 28.72, 36.75, 36.75, 28.72
+mile1, 0.21, 0.21, 0.21, 0.21, 0.21
+mixed, 14.72, 13.72, 8.35, 14.72, 6.78
+OptimizationBenchmark, 0.18, 0.18, 0.16, 0.18, 0.15
+primes, 1.65, 1.65, 1.65, 1.65, 1.64
+programBreaker, 0.04, 0.04, 0.04, 0.02, 0.02
+stats, 0.00, 0.00, 0.00, 0.00, 0.00
+tailFib, 35.77, 35.78, 35.78, 28.14, 28.14
+TicTac, 0.00, 0.00, 0.00, 0.00, 0.00
+uncreativeBenchmark, 0.00, 0.00, 0.00, 0.00, 0.00
+wasteOfCycles, 0.00, 0.00, 0.00, 0.00, 0.00

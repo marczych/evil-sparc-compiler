@@ -6,18 +6,18 @@ make
 FILE="myTimes.txt"
 
 echo "" >> $FILE
-echo "Benchmark, -nofinline -nodeadcode, -finline -nodeadcode, -nofinline -deadcode, -finline -deadcode" >> $FILE
+echo "Benchmark, -noopt, -finline, -deadcode, -tailcall, -allopt" >> $FILE
 
 BENCHMARKS=`ls benchmarks`
 for benchmark in $BENCHMARKS
 do
    BENCHMARK_STATS="$benchmark"
 
-   for opt in "-nofinline -nodeadcode" "-finline -nodeadcode"\
-              "-nofinline -deadcode"   "-finline -deadcode"
+   for opt in "-noopt" "-finline" "-deadcode" "-tailcall" "-allopt"
    do
       echo "$opt $benchmark"
-      java Evil $opt benchmarks/$benchmark/$benchmark.ev
+# later flags will override the nopt flag
+      java Evil -noopt $opt benchmarks/$benchmark/$benchmark.ev
       gcc -mcpu=v9 benchmarks/$benchmark/$benchmark.s -o myTimeExe
       /usr/bin/time -o time.txt -f '%U' myTimeExe < benchmarks/$benchmark/input > /dev/null
       BENCHMARK_STATS="$BENCHMARK_STATS, `cat time.txt`"
