@@ -65,6 +65,8 @@ public class Evil
    private static final String DISPLAYAST = "-displayAST";
    private static final String FUNCTIONINLINE = "-finline";
    private static final String NOFUNCTIONINLINE = "-nofinline";
+   private static final String TAILCALL = "-tailcall";
+   private static final String NOTAILCALL = "-notailcall";
    private static final String DEADCODE = "-deadcode";
    private static final String NODEADCODE = "-nodeadcode";
 
@@ -86,6 +88,14 @@ public class Evil
          else if (args[i].equals(NOFUNCTIONINLINE))
          {
             Block.FUNCTION_INLINING = false;
+         }
+         else if (args[i].equals(TAILCALL))
+         {
+            Block.TAIL_CALL = true;
+         }
+         else if (args[i].equals(NOTAILCALL))
+         {
+            Block.TAIL_CALL = false;
          }
          else if (args[i].equals(DEADCODE))
          {

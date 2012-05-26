@@ -7,6 +7,7 @@ public class Block {
    protected final static long BASE_INSTR_LIMIT = 15;
    public static boolean FUNCTION_INLINING = true;
    public static boolean DEAD_CODE = true;
+   public static boolean TAIL_CALL = true;
    public static int deadCount = 0;
    protected static long mCount = 0;
    protected static Block curExit;
@@ -486,6 +487,7 @@ public class Block {
       return mLabel;
    }
 
+   //TODO Use StringBuilder
    public String toSparc() {
       if (mPrinted) {
          return "";
@@ -509,6 +511,7 @@ public class Block {
          temp += "\n\t!#PROLOGUE# 0\n";
          temp += "\tsave\t%sp, -"+saveSize+", %sp\n";
          temp += "\t!#PROLOGUE# 1";
+         temp += "\n" + getFullLabel() + "BODY:";
       }
 
       for (SparcInstruction instr : mSparcList)
