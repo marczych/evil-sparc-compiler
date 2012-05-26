@@ -69,6 +69,8 @@ public class Evil
    private static final String NOTAILCALL = "-notailcall";
    private static final String DEADCODE = "-deadcode";
    private static final String NODEADCODE = "-nodeadcode";
+   // Defaults all optimizations to false
+   private static final String NOOPT = "-noopt";
 
    private static String _inputFile = null;
    private static boolean _displayAST = false;
@@ -80,6 +82,12 @@ public class Evil
          if (args[i].equals(DISPLAYAST))
          {
             _displayAST = true;
+         }
+         else if (args[i].equals(NOOPT))
+         {
+            Block.FUNCTION_INLINING = false;
+            Block.TAIL_CALL = false;
+            Block.DEAD_CODE = false;
          }
          else if (args[i].equals(FUNCTIONINLINE))
          {
