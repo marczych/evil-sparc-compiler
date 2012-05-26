@@ -25,7 +25,6 @@ options
    protected static final String PRINTF_GLOBAL = "PRINTF_GLOBAL";
    protected static final String PRINTF_ENDL_GLOBAL = "PRINTF_ENDL_GLOBAL";
    protected static final String SCANF_GLOBAL = "SCANF_GLOBAL";
-   protected static final String INVOKE_TYPE = "INVOKE_TYPE";
    protected String mFileName;
 	private static int nextGlobalLocation = 0;
    private RegisterTable regTable = new RegisterTable();
