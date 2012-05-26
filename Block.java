@@ -488,12 +488,13 @@ public class Block {
    }
 
    //TODO Use StringBuilder
-   public String toSparc() {
+   public void toSparc(StringBuilder strBuild) {
       if (mPrinted) {
-         return "";
+         return;
       }
       if (mIsInExit) {
-         return mThen.toSparc();
+         mThen.toSparc(strBuild);
+         return;
       }
 
       mPrinted = true;
@@ -505,24 +506,31 @@ public class Block {
       if(saveSize % 8 != 0)
          saveSize += 4;
 
-      String temp = getFullLabel() + ":";
+      strBuild.append(getFullLabel() + ":");
 
       if (mEntry) {
-         temp += "\n\t!#PROLOGUE# 0\n";
-         temp += "\tsave\t%sp, -"+saveSize+", %sp\n";
-         temp += "\t!#PROLOGUE# 1";
-         temp += "\n" + getFullLabel() + "BODY:";
+         strBuild.append("\n\t!#PROLOGUE# 0\n");
+         strBuild.append("\tsave\t%sp, -"+saveSize+", %sp\n");
+         strBuild.append("\t!#PROLOGUE# 1");
+         strBuild.append("\n" + getFullLabel() + "BODY:");
       }
 
-      for (SparcInstruction instr : mSparcList)
-         temp = temp + "\n\t" + instr;
+      for (SparcInstruction instr : mSparcList) {
+         strBuild.append("\n\t");
+         strBuild.append(instr.toString());
+      }
 
-      if (mThen != null)
-         temp += "\n" + mThen.toSparc();
-      if (mElse != null)
-         temp += "\n" + mElse.toSparc();
+      if (mThen != null) {
+         strBuild.append("\n");
+         mThen.toSparc(strBuild);
+      }
+      if (mElse != null) {
+         strBuild.append("\n");
+         mElse.toSparc(strBuild);
+      }
 
-      return temp + "\n";
+      strBuild.append("\n");
+      return;
    }
 
    public String toIloc() {

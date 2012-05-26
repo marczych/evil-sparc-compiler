@@ -211,7 +211,7 @@ generate : ^(PROGRAM
       strBuild.append("\t.align 4\n");
       strBuild.append("\t.global " + fun.getFullLabel() + "\n");
       strBuild.append("\t.type\t" + fun.getFullLabel() + ", #function\n");
-      strBuild.append(fun.toSparc());
+      fun.toSparc(strBuild);
       strBuild.append("\t.size\t" + fun.getFullLabel() + ", .-" + fun.getFullLabel() + "\n");
    }
 
