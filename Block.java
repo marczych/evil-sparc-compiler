@@ -537,7 +537,7 @@ public class Block {
       if (mThen != null && mElse != null) {
          mInstructionList.add(new CompiInstr(mCondReg, CFG.TRUE_VAL));
          mInstructionList.add(new CBREQInstr(mThen.getFullLabel(),
-                  mElse.getFullLabel()));
+          mElse.getFullLabel()));
       }
       else if (mElse == null && mThen != null && mThen.mPredecessors.size() > 1) {
          mInstructionList.add(new JumpiInstr(mThen.getFullLabel()));

@@ -1,11 +1,15 @@
 import java.util.Hashtable;
 import java.util.ArrayList;
 
-public class BaSparc extends SparcInstruction {
-   protected String mLabel;
+public class BranchSparc extends SparcInstruction {
+   public enum TYPE {BA, BE, BNE};
 
-   public BaSparc(String label) {
+   protected String mLabel;
+   protected TYPE mType;
+
+   public BranchSparc(TYPE type, String label) {
       mLabel = label;
+      mType = type;
    }
 
    public ArrayList<SparcRegister> getSources() {
@@ -17,7 +21,20 @@ public class BaSparc extends SparcInstruction {
    }
 
    public String toString() {
-      return "ba "+mLabel;
+      return getTypeName() + " " + mLabel;
+   }
+
+   private String getTypeName() {
+      switch (mType) {
+      case BA:
+         return "ba";
+      case BE:
+         return "be";
+      case BNE:
+         return "bne";
+      default:
+         return "branch";
+      }
    }
 
    public void replaceSpills(Hashtable<SparcRegister, SparcRegister> spills) {
