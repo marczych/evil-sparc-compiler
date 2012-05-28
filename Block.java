@@ -29,6 +29,7 @@ public class Block {
    protected int mSpillCount;
    protected Register mCondReg;
    protected Compare mCondType;
+   protected boolean mBackwardsCondition = false;
    protected boolean mReturn = false;
    protected boolean mIsInExit = false;
    protected boolean mEntry = false;
@@ -109,6 +110,7 @@ public class Block {
 
       ret = new Block(getLabel() + "inline");
       ret.mCondReg = mCondReg;
+      ret.mBackwardsCondition = mBackwardsCondition;
       ret.mCondType = mCondType;
       blocks.put(this, ret);
 
@@ -151,6 +153,7 @@ public class Block {
 
       ret.mCondReg = mCondReg;
       ret.mCondType = mCondType;
+      ret.mBackwardsCondition = mBackwardsCondition;
       IlocInstruction copy;
 
       for (IlocInstruction instr : mInstructionList) {
@@ -411,6 +414,11 @@ public class Block {
       mInstructionList.addAll(instr);
    }
 
+   public void appendBackwardsCondition(Register res, Compare condType) {
+      appendCondition(res, condType);
+      mBackwardsCondition = true;
+   }
+
    public void appendCondition(Register res, Compare condType) {
       if (mReturn)
          return;
@@ -541,8 +549,21 @@ public class Block {
       // We need to branch and we don't know what register the condition
       // is in so we must branch based off the condition type
       if (mCondReg == null && mElse != null) {
-         mInstructionList.add(new BranchInstr(mCondType.reverse(),
-          mElse.getFullLabel()));
+         String label;
+         Compare cond;
+
+         // Looks wrong but we want to jump over the wrong block so we
+         // usually reverse the condition. However if we're branching
+         // backwards then we don't want to switch it.
+         if (mBackwardsCondition) {
+            label = mThen.getFullLabel();
+            cond = mCondType;
+         } else {
+            label = mElse.getFullLabel();
+            cond = mCondType.reverse();
+         }
+
+         mInstructionList.add(new BranchInstr(cond, label));
       } else if (mThen != null && mElse != null) {
          mInstructionList.add(new CompiInstr(mCondReg, CFG.TRUE_VAL));
          mInstructionList.add(new BranchInstr(Compare.EQ,

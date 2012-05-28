@@ -371,8 +371,8 @@ statements [Block b, BlockReference br] :
    {
       String funName = br.getRef().getLabel();
    }
-	^(WHILE r=expression[br, new Boolean(false), new Boolean(false)] body=block["WHILE"]
-           r2=expression[condBR = new BlockReference($body.end), new Boolean(false), new Boolean(false)])
+	^(WHILE r=expression[br, new Boolean(false), new Boolean(true)] body=block["WHILE"]
+           r2=expression[condBR = new BlockReference($body.end), new Boolean(false), new Boolean(true)])
 	{
       entryBlock.mLoop = true;
 		Block cont = new Block(funName + "CONT");
@@ -382,7 +382,8 @@ statements [Block b, BlockReference br] :
 		br.getRef().appendCondition($r.r, $r.compareType);
 		condBR.getRef().addThen($body.body);
 		condBR.getRef().addElse(cont);
-		condBR.getRef().appendCondition($r2.r, $r.compareType);
+		condBR.getRef().appendBackwardsCondition($r2.r,
+       $r2.compareType);
       br.setRef(cont);
 	}
 	| ^(DELETE r=expression[br, new Boolean(false), new Boolean(false)])
