@@ -13,6 +13,7 @@ function jobidfromstring()
 }
 
 ulimit -s unlimited
+make
 
 joblist=""
 

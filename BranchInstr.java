@@ -1,21 +1,23 @@
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-public class JumpiInstr extends IlocInstruction {
+public class BranchInstr extends IlocInstruction {
+   private Compare mType;
    private String mLabel;
 
-   public JumpiInstr(String label) {
+   public BranchInstr(Compare type, String label) {
+      mType = type;
       mLabel = label;
    }
 
    public String toIloc() {
-      return "jumpi "+mLabel;
+      return "";
    }
 
    public ArrayList<SparcInstruction> toSparc() {
       ArrayList<SparcInstruction> list = new ArrayList<SparcInstruction>();
 
-      list.add(new BranchSparc(null, mLabel));
+      list.add(new BranchSparc(mType, mLabel));
       list.add(new NopSparc());
 
       return list;
@@ -25,6 +27,6 @@ public class JumpiInstr extends IlocInstruction {
    }
 
    public IlocInstruction copy() {
-      return new JumpiInstr(mLabel);
+      return new BranchInstr(mType, mLabel);
    }
 }
