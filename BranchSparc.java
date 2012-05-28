@@ -2,12 +2,10 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 
 public class BranchSparc extends SparcInstruction {
-   public enum TYPE {BA, BE, BNE};
-
    protected String mLabel;
-   protected TYPE mType;
+   protected Compare mType;
 
-   public BranchSparc(TYPE type, String label) {
+   public BranchSparc(Compare type, String label) {
       mLabel = label;
       mType = type;
    }
@@ -25,15 +23,25 @@ public class BranchSparc extends SparcInstruction {
    }
 
    private String getTypeName() {
-      switch (mType) {
-      case BA:
+      if (mType == null) {
          return "ba";
-      case BE:
+      }
+
+      switch (mType) {
+      case EQ:
          return "be";
-      case BNE:
+      case LT:
+         return "bl";
+      case GT:
+         return "bg";
+      case NE:
          return "bne";
+      case LE:
+         return "ble";
+      case GE:
+         return "bge";
       default:
-         return "branch";
+         return "ba";
       }
    }
 

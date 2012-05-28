@@ -41,8 +41,8 @@ options
       mFileName = fileName.substring(0, fileName.length() - 2);
    }
 
-   public Register makeMoveAny(String type, Block b,
-     Register r1, Register r2) {
+   public Register makeCompare(Compare type, Block b,
+     Register r1, Register r2, boolean moveToReg) {
       Register r = new Register();
 
       b.addInstruction(new LoadiInstr(r, FALSE_VAL));
@@ -320,9 +320,9 @@ freeblock [Block b, BlockReference br] :
 statements [Block b, BlockReference br] :
    freeblock[b, br]
 	| ^(ASSIGN 
-			r=expression[br, new Boolean(false)] 
+			r=expression[br, new Boolean(false), new Boolean(false)] 
 			lvalue[br.getRef(), br, $r.r])
-	| ^(PRINT r=expression[br, new Boolean(false)] endl=ENDL?)
+	| ^(PRINT r=expression[br, new Boolean(false), new Boolean(false)] endl=ENDL?)
    {
       br.getRef().addInstruction(new PrintInstr($r.r, $endl != null));
    }
@@ -338,7 +338,7 @@ statements [Block b, BlockReference br] :
    {
       String funName = br.getRef().getLabel();
    }
-   ^(IF r=expression[br, new Boolean(false)] thenBlock=block["THEN"] elseBlock=block["ELSE"]?)
+   ^(IF r=expression[br, new Boolean(false), new Boolean(true)] thenBlock=block["THEN"] elseBlock=block["ELSE"]?)
 	{ 
 		Block cont = new Block(funName + "CONT");
       cont.addThen(exitBlock);
@@ -363,7 +363,7 @@ statements [Block b, BlockReference br] :
    {
       String funName = br.getRef().getLabel();
    }
-	^(WHILE r=expression[br, new Boolean(false)] body=block["WHILE"] r2=expression[condBR = new BlockReference($body.end), new Boolean(false)])
+	^(WHILE r=expression[br, new Boolean(false), new Boolean(false)] body=block["WHILE"] r2=expression[condBR = new BlockReference($body.end), new Boolean(false), new Boolean(false)])
 	{
       entryBlock.mLoop = true;
 		Block cont = new Block(funName + "CONT");
@@ -376,11 +376,11 @@ statements [Block b, BlockReference br] :
 		condBR.getRef().appendCondition($r2.r); 
       br.setRef(cont);
 	}
-	| ^(DELETE r=expression[br, new Boolean(false)])
+	| ^(DELETE r=expression[br, new Boolean(false), new Boolean(false)])
    {
       br.getRef().addInstruction(new DelInstr($r.r));
    }
-	| ^(RETURN r=expression[br, new Boolean(true)]?)
+	| ^(RETURN r=expression[br, new Boolean(true), new Boolean(false)]?)
    {
       if (!$r.tail) {
          if ($r.r != null)
@@ -470,63 +470,75 @@ lvalue_h [Block blk] returns [Register r = null, Struct s = null] :
    }
 ;
 
-expression [BlockReference br, Boolean isReturning]
+expression [BlockReference br, Boolean isReturning, Boolean isBranching]
   returns [Register r = null, Struct struct = null, boolean tail = false] :
-	^(AND r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
+	^(AND r1=expression[br, new Boolean(false), new Boolean(false)]
+         r2=expression[br, new Boolean(false), new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new AndInstr($r1.r, $r2.r, $r));
    }
-	| ^(OR r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
+	| ^(OR r1=expression[br, new Boolean(false), new Boolean(false)]
+          r2=expression[br, new Boolean(false), new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new OrInstr($r1.r, $r2.r, $r));
    }
-	| ^(EQ r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
+	| ^(EQ r1=expression[br, new Boolean(false), new Boolean(false)]
+          r2=expression[br, new Boolean(false), new Boolean(false)])
    {
-      $r = makeMoveAny("eq", br.getRef(), $r1.r, $r2.r);
+      $r = makeCompare(Compare.EQ, br.getRef(), $r1.r, $r2.r, !isBranching);
    }
-	| ^(LT r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
+	| ^(LT r1=expression[br, new Boolean(false), new Boolean(false)]
+          r2=expression[br, new Boolean(false), new Boolean(false)])
    {
-      $r = makeMoveAny("lt", br.getRef(), $r1.r, $r2.r);
+      $r = makeCompare(Compare.LT, br.getRef(), $r1.r, $r2.r, !isBranching);
    }
-	| ^(GT r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
+	| ^(GT r1=expression[br, new Boolean(false), new Boolean(false)]
+          r2=expression[br, new Boolean(false), new Boolean(false)])
    {
-      $r = makeMoveAny("gt", br.getRef(), $r1.r, $r2.r);
+      $r = makeCompare(Compare.GT, br.getRef(), $r1.r, $r2.r, !isBranching);
    }
-	| ^(NE r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
+	| ^(NE r1=expression[br, new Boolean(false), new Boolean(false)]
+          r2=expression[br, new Boolean(false), new Boolean(false)])
    {
-      $r = makeMoveAny("ne", br.getRef(), $r1.r, $r2.r);
+      $r = makeCompare(Compare.NE, br.getRef(), $r1.r, $r2.r, !isBranching);
    }
-	| ^(LE r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
+	| ^(LE r1=expression[br, new Boolean(false), new Boolean(false)]
+          r2=expression[br, new Boolean(false), new Boolean(false)])
    {
-      $r = makeMoveAny("le", br.getRef(), $r1.r, $r2.r);
+      $r = makeCompare(Compare.LE, br.getRef(), $r1.r, $r2.r, !isBranching);
    }
-	| ^(GE r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
+	| ^(GE r1=expression[br, new Boolean(false), new Boolean(false)]
+          r2=expression[br, new Boolean(false), new Boolean(false)])
    {
-      $r = makeMoveAny("ge", br.getRef(), $r1.r, $r2.r);
+      $r = makeCompare(Compare.GE, br.getRef(), $r1.r, $r2.r, !isBranching);
    }
-	| ^(PLUS r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
+	| ^(PLUS r1=expression[br, new Boolean(false), new Boolean(false)]
+            r2=expression[br, new Boolean(false), new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new AddInstr($r1.r, $r2.r, $r));
    }
-	| ^(MINUS r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
+	| ^(MINUS r1=expression[br, new Boolean(false), new Boolean(false)]
+             r2=expression[br, new Boolean(false), new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new SubInstr($r1.r, $r2.r, $r));
    }
-	| ^(TIMES r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
+	| ^(TIMES r1=expression[br, new Boolean(false), new Boolean(false)]
+             r2=expression[br, new Boolean(false), new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new MultInstr($r1.r, $r2.r, $r));
    }
-	| ^(DIVIDE r1=expression[br, new Boolean(false)] r2=expression[br, new Boolean(false)])
+	| ^(DIVIDE r1=expression[br, new Boolean(false), new Boolean(false)]
+              r2=expression[br, new Boolean(false), new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new DivInstr($r1.r, $r2.r, $r));
    }
-	| ^(DOT r1=expression[br, new Boolean(false)] id=ID)
+	| ^(DOT r1=expression[br, new Boolean(false), new Boolean(false)] id=ID)
    {
       $r = new Register();
       String type = $r1.struct.getStructType($id.text);
@@ -579,7 +591,7 @@ expression [BlockReference br, Boolean isReturning]
          }
       }
    }
-	| ^(NEG r1=expression[br, new Boolean(false)])
+	| ^(NEG r1=expression[br, new Boolean(false), new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new NegInstr($r1.r, $r));
@@ -599,12 +611,12 @@ expression [BlockReference br, Boolean isReturning]
       $r = new Register();
       br.getRef().addInstruction(new LoadiInstr($r, FALSE_VAL));
    }
-	| ^(NOT r1=expression[br, new Boolean(false)])
+	| ^(NOT r1=expression[br, new Boolean(false), new Boolean(false)])
    {
       $r = new Register();
       br.getRef().addInstruction(new LoadiInstr($r, TRUE_VAL));
       br.getRef().addInstruction(new CompiInstr($r1.r, TRUE_VAL));
-      br.getRef().addInstruction(new MovanyInstr("eq", FALSE_VAL, $r));
+      br.getRef().addInstruction(new MovanyInstr(Compare.EQ, FALSE_VAL, $r));
    }
 	| ^(NEW id=ID)
    {
@@ -645,7 +657,7 @@ arguments [Block b, BlockReference br]
 ;
 
 arg_expression [ArrayList<Register> regs, BlockReference br] :
-	reg=expression[br, new Boolean(false)]
+	reg=expression[br, new Boolean(false), new Boolean(false)]
    {
       regs.add($reg.r);
    }

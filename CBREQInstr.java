@@ -17,9 +17,9 @@ public class CBREQInstr extends IlocInstruction {
    public ArrayList<SparcInstruction> toSparc() {
       ArrayList<SparcInstruction> list = new ArrayList<SparcInstruction>();
 
-      list.add(new BranchSparc(BranchSparc.TYPE.BE, mTrueLabel));
+      list.add(new BranchSparc(Compare.EQ, mTrueLabel));
       list.add(new NopSparc());
-      list.add(new BranchSparc(BranchSparc.TYPE.BA, mFalseLabel));
+      list.add(new BranchSparc(null, mFalseLabel));
       list.add(new NopSparc());
 
       return list;

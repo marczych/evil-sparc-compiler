@@ -15,7 +15,7 @@ public class JumpiInstr extends IlocInstruction {
    public ArrayList<SparcInstruction> toSparc() {
       ArrayList<SparcInstruction> list = new ArrayList<SparcInstruction>();
 
-      list.add(new BranchSparc(BranchSparc.TYPE.BA, mLabel));
+      list.add(new BranchSparc(null, mLabel));
       list.add(new NopSparc());
 
       return list;
