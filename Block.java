@@ -28,6 +28,7 @@ public class Block {
    protected int mNumArgs;
    protected int mSpillCount;
    protected Register mCondReg;
+   protected Compare mCondType;
    protected boolean mReturn = false;
    protected boolean mIsInExit = false;
    protected boolean mEntry = false;
@@ -108,6 +109,7 @@ public class Block {
 
       ret = new Block(getLabel() + "inline");
       ret.mCondReg = mCondReg;
+      ret.mCondType = mCondType;
       blocks.put(this, ret);
 
       for (IlocInstruction instr : mInstructionList) {
@@ -148,6 +150,7 @@ public class Block {
       blocks.put(this, ret);
 
       ret.mCondReg = mCondReg;
+      ret.mCondType = mCondType;
       IlocInstruction copy;
 
       for (IlocInstruction instr : mInstructionList) {
@@ -408,11 +411,12 @@ public class Block {
       mInstructionList.addAll(instr);
    }
 
-   public void appendCondition(Register res) {
+   public void appendCondition(Register res, Compare condType) {
       if (mReturn)
          return;
 
       mCondReg = res;
+      mCondType = condType;
    }
 
    public void addThen(Block thenBlock) {
@@ -534,10 +538,16 @@ public class Block {
    }
 
    public String toIloc() {
-      if (mThen != null && mElse != null) {
-         mInstructionList.add(new CompiInstr(mCondReg, CFG.TRUE_VAL));
-         mInstructionList.add(new CBREQInstr(mThen.getFullLabel(),
+      // We need to branch and we don't know what register the condition
+      // is in so we must branch based off the condition type
+      if (mCondReg == null && mElse != null) {
+         mInstructionList.add(new BranchInstr(mCondType.reverse(),
           mElse.getFullLabel()));
+      } else if (mThen != null && mElse != null) {
+         mInstructionList.add(new CompiInstr(mCondReg, CFG.TRUE_VAL));
+         mInstructionList.add(new BranchInstr(Compare.EQ,
+          mThen.getFullLabel()));
+         mInstructionList.add(new BranchInstr(null, mElse.getFullLabel()));
       }
       else if (mElse == null && mThen != null && mThen.mPredecessors.size() > 1) {
          mInstructionList.add(new JumpiInstr(mThen.getFullLabel()));

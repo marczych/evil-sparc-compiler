@@ -43,11 +43,18 @@ options
 
    public Register makeCompare(Compare type, Block b,
      Register r1, Register r2, boolean moveToReg) {
-      Register r = new Register();
+      Register r = null;
 
-      b.addInstruction(new LoadiInstr(r, FALSE_VAL));
+      if (moveToReg) {
+         r = new Register();
+         b.addInstruction(new LoadiInstr(r, FALSE_VAL));
+      }
+
       b.addInstruction(new CompInstr(r1, r2));
-      b.addInstruction(new MovanyInstr(type, TRUE_VAL, r));
+
+      if (moveToReg) {
+         b.addInstruction(new MovanyInstr(type, TRUE_VAL, r));
+      }
 
       return r;
    }
@@ -338,7 +345,8 @@ statements [Block b, BlockReference br] :
    {
       String funName = br.getRef().getLabel();
    }
-   ^(IF r=expression[br, new Boolean(false), new Boolean(true)] thenBlock=block["THEN"] elseBlock=block["ELSE"]?)
+   ^(IF r=expression[br, new Boolean(false), new Boolean(true)]
+        thenBlock=block["THEN"] elseBlock=block["ELSE"]?)
 	{ 
 		Block cont = new Block(funName + "CONT");
       cont.addThen(exitBlock);
@@ -351,7 +359,7 @@ statements [Block b, BlockReference br] :
 
 		br.getRef().addThen($thenBlock.body);
 		br.getRef().addElse($elseBlock.body != null ? $elseBlock.body : cont);
-		br.getRef().appendCondition($r.r);
+		br.getRef().appendCondition($r.r, $r.compareType);
 
 		// if there is an else block, tell it to "then" go to the continuation
       br.setRef(cont);
@@ -363,17 +371,18 @@ statements [Block b, BlockReference br] :
    {
       String funName = br.getRef().getLabel();
    }
-	^(WHILE r=expression[br, new Boolean(false), new Boolean(false)] body=block["WHILE"] r2=expression[condBR = new BlockReference($body.end), new Boolean(false), new Boolean(false)])
+	^(WHILE r=expression[br, new Boolean(false), new Boolean(false)] body=block["WHILE"]
+           r2=expression[condBR = new BlockReference($body.end), new Boolean(false), new Boolean(false)])
 	{
       entryBlock.mLoop = true;
 		Block cont = new Block(funName + "CONT");
       cont.addThen(exitBlock);
 		br.getRef().addThen($body.body);
 		br.getRef().addElse(cont);
-		br.getRef().appendCondition($r.r);
+		br.getRef().appendCondition($r.r, $r.compareType);
 		condBR.getRef().addThen($body.body);
 		condBR.getRef().addElse(cont);
-		condBR.getRef().appendCondition($r2.r); 
+		condBR.getRef().appendCondition($r2.r, $r.compareType);
       br.setRef(cont);
 	}
 	| ^(DELETE r=expression[br, new Boolean(false), new Boolean(false)])
@@ -471,7 +480,7 @@ lvalue_h [Block blk] returns [Register r = null, Struct s = null] :
 ;
 
 expression [BlockReference br, Boolean isReturning, Boolean isBranching]
-  returns [Register r = null, Struct struct = null, boolean tail = false] :
+  returns [Register r = null, Struct struct = null, boolean tail = false, Compare compareType = null] :
 	^(AND r1=expression[br, new Boolean(false), new Boolean(false)]
          r2=expression[br, new Boolean(false), new Boolean(false)])
    {
@@ -487,31 +496,37 @@ expression [BlockReference br, Boolean isReturning, Boolean isBranching]
 	| ^(EQ r1=expression[br, new Boolean(false), new Boolean(false)]
           r2=expression[br, new Boolean(false), new Boolean(false)])
    {
+      $compareType = Compare.EQ;
       $r = makeCompare(Compare.EQ, br.getRef(), $r1.r, $r2.r, !isBranching);
    }
 	| ^(LT r1=expression[br, new Boolean(false), new Boolean(false)]
           r2=expression[br, new Boolean(false), new Boolean(false)])
    {
+      $compareType = Compare.LT;
       $r = makeCompare(Compare.LT, br.getRef(), $r1.r, $r2.r, !isBranching);
    }
 	| ^(GT r1=expression[br, new Boolean(false), new Boolean(false)]
           r2=expression[br, new Boolean(false), new Boolean(false)])
    {
+      $compareType = Compare.GT;
       $r = makeCompare(Compare.GT, br.getRef(), $r1.r, $r2.r, !isBranching);
    }
 	| ^(NE r1=expression[br, new Boolean(false), new Boolean(false)]
           r2=expression[br, new Boolean(false), new Boolean(false)])
    {
+      $compareType = Compare.NE;
       $r = makeCompare(Compare.NE, br.getRef(), $r1.r, $r2.r, !isBranching);
    }
 	| ^(LE r1=expression[br, new Boolean(false), new Boolean(false)]
           r2=expression[br, new Boolean(false), new Boolean(false)])
    {
+      $compareType = Compare.LE;
       $r = makeCompare(Compare.LE, br.getRef(), $r1.r, $r2.r, !isBranching);
    }
 	| ^(GE r1=expression[br, new Boolean(false), new Boolean(false)]
           r2=expression[br, new Boolean(false), new Boolean(false)])
    {
+      $compareType = Compare.GE;
       $r = makeCompare(Compare.GE, br.getRef(), $r1.r, $r2.r, !isBranching);
    }
 	| ^(PLUS r1=expression[br, new Boolean(false), new Boolean(false)]
