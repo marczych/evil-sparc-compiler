@@ -101,6 +101,7 @@ options
          os.write("\n".getBytes());
 
          Block.eliminateDeadBlocks();
+         Block.checkTailCalls();
          Block.writeIloc(os);
          os.close();
       }
@@ -300,6 +301,7 @@ functions @init
          entryBlock.appendInstruction(list);
 		   exitBlock = new Block("FUN"+$id.text+"EXIT");
          exitBlock.addInstruction(new RetInstr());
+         exitBlock.setExit();
          entryBlock.setThen(exitBlock);
 
          funLabels.put($id.text, entryBlock);

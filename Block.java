@@ -33,6 +33,7 @@ public class Block {
    protected boolean mBackwardsCondition = false;
    protected boolean mReturn = false;
    protected boolean mEntry = false;
+   protected boolean mExit = false;
    protected boolean mInline = false;
    protected boolean mCallsSelf = false;
    protected boolean mLoop = false;
@@ -398,6 +399,10 @@ public class Block {
       mEntry = true;
    }
 
+   public void setExit() {
+      mExit = true;
+   }
+
    public void setInline() {
       mInline = true;
    }
@@ -562,6 +567,37 @@ public class Block {
          }
 
          return mThen.getBlock();
+      }
+   }
+
+   // Finds tail calls that are not of the form "return call();"
+   public static void checkTailCalls() {
+      if (!Block.TAIL_CALL) {
+         return;
+      }
+
+      ArrayList<IlocInstruction> instrs;
+      IlocInstruction ilocInstr;
+
+      for (Block block : mRoster) {
+         instrs = block.mInstructionList;
+
+         // Tail call time.
+         if (instrs.size() > 0 && (ilocInstr = instrs.get(instrs.size() - 1))
+          instanceof CallInstr && (block.mThen == null || block.mThen.mExit)) {
+            System.out.println("Tail: " + ((CallInstr)ilocInstr).getFunName());
+            ((CallInstr)ilocInstr).setTail(true);
+
+            for (int i = instrs.size() - 2; i >= 0; i --) {
+               ilocInstr = instrs.get(i);
+
+               if (ilocInstr instanceof StoreoutInstr) {
+                  ((StoreoutInstr)ilocInstr).setTail(true);
+               } else {
+                  break;
+               }
+            }
+         }
       }
    }
 

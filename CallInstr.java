@@ -14,6 +14,14 @@ public class CallInstr extends IlocInstruction {
       mTail = tail;
    }
 
+   public String getFunName() {
+      return mFun.substring(3, mFun.length());
+   }
+
+   public void setTail(boolean tail) {
+      mTail = tail;
+   }
+
    public String toIloc() {
       return "call "+mFun;
    }
