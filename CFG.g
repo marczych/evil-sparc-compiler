@@ -600,6 +600,8 @@ expression [BlockReference br, Boolean isReturning, Boolean isBranching]
          }
 
          br.getRef().addInstruction(new CallInstr(fun.getFullLabel(), true));
+         br.getRef().setThen(null);
+         br.getRef().setElse(null);
       } else {
          br.getRef().addInstruction(new CallInstr(fun.getFullLabel()));
          br.getRef().addInstruction(new LoadRetInstr($r));

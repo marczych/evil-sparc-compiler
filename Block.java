@@ -441,7 +441,9 @@ public class Block {
       }
 
       mThen = thenBlock;
-      mThen.addPredecessor();
+      if (mThen != null) {
+         mThen.addPredecessor();
+      }
    }
 
    public Block getThen() {
@@ -457,7 +459,9 @@ public class Block {
       }
 
       mElse = elseBlock;
-      mElse.addPredecessor();
+      if (mElse != null) {
+         mElse.addPredecessor();
+      }
    }
 
    public void addPredecessor() {
@@ -587,6 +591,8 @@ public class Block {
           instanceof CallInstr && (block.mThen == null || block.mThen.mExit)) {
             System.out.println("Tail: " + ((CallInstr)ilocInstr).getFunName());
             ((CallInstr)ilocInstr).setTail(true);
+            block.setThen(null);
+            block.setElse(null);
 
             for (int i = instrs.size() - 2; i >= 0; i --) {
                ilocInstr = instrs.get(i);
