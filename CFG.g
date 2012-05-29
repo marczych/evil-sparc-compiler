@@ -100,6 +100,7 @@ options
 
          os.write("\n".getBytes());
 
+         Block.eliminateDeadBlocks();
          Block.writeIloc(os);
          os.close();
       }
@@ -299,7 +300,7 @@ functions @init
          entryBlock.appendInstruction(list);
 		   exitBlock = new Block("FUN"+$id.text+"EXIT");
          exitBlock.addInstruction(new RetInstr());
-         entryBlock.addThen(exitBlock);
+         entryBlock.setThen(exitBlock);
 
          funLabels.put($id.text, entryBlock);
       }
@@ -349,16 +350,16 @@ statements [Block b, BlockReference br] :
         thenBlock=block["THEN"] elseBlock=block["ELSE"]?)
 	{ 
 		Block cont = new Block(funName + "CONT");
-      cont.addThen(exitBlock);
+      cont.setThen(exitBlock);
 
-		//addThen adds the continuation for this. So if it's a then without an else
+		//setThen adds the continuation for this. So if it's a then without an else
 		//it "then" continues to the continuation block
-		$thenBlock.end.addThen(cont);
+		$thenBlock.end.setThen(cont);
       if ($elseBlock.body != null)
-         $elseBlock.end.addThen(cont);
+         $elseBlock.end.setThen(cont);
 
-		br.getRef().addThen($thenBlock.body);
-		br.getRef().addElse($elseBlock.body != null ? $elseBlock.body : cont);
+		br.getRef().setThen($thenBlock.body);
+		br.getRef().setElse($elseBlock.body != null ? $elseBlock.body : cont);
 		br.getRef().appendCondition($r.r, $r.compareType);
 
 		// if there is an else block, tell it to "then" go to the continuation
@@ -376,12 +377,12 @@ statements [Block b, BlockReference br] :
 	{
       entryBlock.mLoop = true;
 		Block cont = new Block(funName + "CONT");
-      cont.addThen(exitBlock);
-		br.getRef().addThen($body.body);
-		br.getRef().addElse(cont);
+      cont.setThen(exitBlock);
+		br.getRef().setThen($body.body);
+		br.getRef().setElse(cont);
 		br.getRef().appendCondition($r.r, $r.compareType);
-		condBR.getRef().addThen($body.body);
-		condBR.getRef().addElse(cont);
+		condBR.getRef().setThen($body.body);
+		condBR.getRef().setElse(cont);
 		condBR.getRef().appendBackwardsCondition($r2.r,
        $r2.compareType);
       br.setRef(cont);
@@ -396,7 +397,7 @@ statements [Block b, BlockReference br] :
          if ($r.r != null)
             br.getRef().addInstruction(new StoreRetInstr($r.r));
 
-         br.getRef().addThen(exitBlock);
+         br.getRef().setThen(exitBlock);
          br.getRef().setReturn();
       }
    }
@@ -424,10 +425,9 @@ statements [Block b, BlockReference br] :
          Block inlineEntry = fun.mInlineEntry.inlineMakeClone(blocks, regs);
          Block inlineExit = inlineEntry.mInlineExit;
 
-         cont.addThen(exitBlock);
-         br.getRef().addThen(inlineEntry);
-         inlineExit.addThen(cont);
-         inlineExit.mIsInExit = true;
+         cont.setThen(exitBlock);
+         br.getRef().setThen(inlineEntry);
+         inlineExit.setThen(cont);
          br.setRef(cont);
       }
    }
@@ -581,10 +581,9 @@ expression [BlockReference br, Boolean isReturning, Boolean isBranching]
          Block inlineEntry = fun.mInlineEntry.inlineMakeClone(blocks, regs);
          Block inlineExit = inlineEntry.mInlineExit;
 
-         cont.addThen(exitBlock);
-         br.getRef().addThen(inlineEntry);
-         inlineExit.addThen(cont);
-         inlineExit.mIsInExit = true;
+         cont.setThen(exitBlock);
+         br.getRef().setThen(inlineEntry);
+         inlineExit.setThen(cont);
          cont.addInstruction(new LoadRetInstr($r));
          br.setRef(cont);
       } else if (isReturning && Block.TAIL_CALL) {
