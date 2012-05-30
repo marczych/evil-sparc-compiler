@@ -1,4 +1,3 @@
-import java.util.ConcurrentModificationException;
 import java.util.TreeSet;
 import java.util.Hashtable;
 import java.util.Collection;
@@ -10,6 +9,7 @@ public class RegGraph {
    static {
       colors = addColors();
       restricted = new Hashtable<SparcRegister, TreeSet<SparcRegister>>();
+      coalescedCount = 0;
    }
 
    public static class Node implements Comparable<Node> {
@@ -86,27 +86,27 @@ public class RegGraph {
    public static Hashtable<SparcRegister, TreeSet<SparcRegister>> restricted;
    public static TreeSet<SparcRegister> colors;
 
-	ArrayList<Node> initial;		// unprocessed nodes
-	ArrayList<Node> simplifyList;	// low-degree, non-move-related
-	ArrayList<Node> spillList;	// degree > K
-	ArrayList<Node> freezeList; 	// low-degree move-related
-	ArrayList<Node> spilled;		// marked for spilling during this iteration
-	ArrayList<Node> coalesced;	// when mov a->b is coalesced, a or b is added to this list, and the other is added to another work list
-	ArrayList<Node> colored;
-	Stack<Node> selectStack;	// temps removed from graph
+	private ArrayList<Node> initial;		// unprocessed nodes
+	private ArrayList<Node> simplifyList;	// low-degree, non-move-related
+	private ArrayList<Node> spillList;		// degree > K
+	private ArrayList<Node> freezeList; 	// low-degree move-related
+	private ArrayList<Node> spilled;		// marked for spilling during this iteration
+	private ArrayList<Node> coalesced;		// when mov a->b is coalesced, a or b is added to this list, and the other is added to another work list
+	private ArrayList<Node> colored;
+	private Stack<Node> selectStack;		// temps removed from graph
 
-	Hashtable<Node, ArrayList<MovSparcBlockPair>> moveList;
+	private Hashtable<Node, ArrayList<MovSparcBlockPair>> moveList;
 	
 	// Move sets (every move in exactly one of these):
-	public ArrayList<MovSparcBlockPair> coalescedMoves;
-	ArrayList<MovSparcBlockPair> constrainedMoves; // source and destination interfere
-	ArrayList<MovSparcBlockPair> frozenMoves;		 // no longer considered for coalescing
-	ArrayList<MovSparcBlockPair> worklistMoves;	 // coalesce candidates
-	ArrayList<MovSparcBlockPair> activeMoves;		 // not yet ready for coalescing
+	private ArrayList<MovSparcBlockPair> coalescedMoves;
+	private ArrayList<MovSparcBlockPair> constrainedMoves; 		// source and destination interfere
+	private ArrayList<MovSparcBlockPair> frozenMoves;		 	// no longer considered for coalescing
+	private ArrayList<MovSparcBlockPair> worklistMoves;	 		// coalesce candidates
+	private ArrayList<MovSparcBlockPair> activeMoves;		 	// not yet ready for coalescing
 	
-	ArrayList<String> coalescedMoveNames = new ArrayList<String>();
+	private Hashtable<Node, Node> alias;
 	
-	Hashtable<Node, Node> alias;
+	public static int coalescedCount;
    
    public RegGraph() {
       mNodes = new Hashtable<SparcRegister, Node>();
@@ -137,14 +137,16 @@ public class RegGraph {
     
 	public boolean iteratedRegisterCoalescing(ArrayList<Block> allBlocks)
 	{
-		//buildGraph(allBlocks);
+		// Create the initial list of unprocessed nodes
 		for (Node n : mNodes.values())
 		{
 			initial.add(n);
 		}
 		
+		// Build the simplify, freeze, and spill worklists
 		makeWorkLists();
 
+		// Keep going as long as at least one worklist isn't empty.
 		while (!simplifyList.isEmpty() || !worklistMoves.isEmpty() || !freezeList.isEmpty() || !spillList.isEmpty())
 		{
 			if (!simplifyList.isEmpty())
@@ -157,16 +159,14 @@ public class RegGraph {
 				selectSpill();
 		}
 	
+		// Try to color the graph.
 		assignColors();
 	
 		if (!spilled.isEmpty())
 		{
-			// nodes.remove(nawd = nodes.first());
-			// removeNode(nawd);
-			// remNodes.push(nawd);
-			// nawd.mReal = SparcRegister.makeNextSpill();
-			// SparcRegister.addToSpillHash(nawd);
-			
+			// We had to spill at least one register.
+			// Add the spilled regs to the spill hash
+			// and bail.
 			for (Node n : spilled)
 			{
 				n.mReal = SparcRegister.makeNextSpill();
@@ -177,6 +177,9 @@ public class RegGraph {
 		}
 		else
 		{
+			// Coloring was successful, so go ahead and
+			// remove the coalesced move instructions.
+			coalescedCount += coalescedMoves.size();
 			for (MovSparcBlockPair mbp : coalescedMoves)
 			{
 				mbp.block.removeInstruction(mbp.instr);
@@ -195,6 +198,8 @@ public class RegGraph {
 			ArrayList<SparcRegister> okColors = new ArrayList<SparcRegister>();
 			okColors.addAll(colors);
 			
+			// If any of this node's neighbors have been colored,
+			// we can't use their colors for this node.
 			for (Node w : n.mEdges)
 			{
 				if (colored.contains(getAlias(w)))
@@ -202,6 +207,9 @@ public class RegGraph {
 					okColors.remove(getAlias(w).mReal);
 				}
 			}
+			
+			// Check for restricted registers - if there are any of these,
+			// remove their colors also.
 			if (RegGraph.restricted.get(n) != null)
 			{
 				for (SparcRegister reg : RegGraph.restricted.get(n.mReg))
@@ -210,12 +218,15 @@ public class RegGraph {
 				}
 			}
 			
+			// There are no more colors left, so we have to spill this node.
 			if (okColors.isEmpty())
 			{
 				spilled.add(n);
 			}
 			else
 			{
+				// Only assign it a color if it doesn't have a color already
+				// (i.e. only if it isn't precolored).
 				if (n.mReal == null)
 				{
 					//System.out.println("Assigning: " + n.mReg + " -> " + okColors.get(0));
@@ -224,11 +235,15 @@ public class RegGraph {
 				colored.add(n);
 			}
 		}
+		
+		// Coalesced nodes/regs should get the same color
+		// as the nodes/regs they were coalesced into.
 		for (Node n : coalesced)
 		{
 			n.mReal = getAlias(n).mReal;
 		}
 		
+		// Transfer color assignments to the actual graph (mNodes).
 		for (Node n : mNodes.values())
 		{
 			int i = colored.indexOf(n);
@@ -238,6 +253,8 @@ public class RegGraph {
 			}
 		}
 		
+		// If we didn't spill any regs, we can add the graph's nodes
+		// to the register hash.
 		if (spilled.isEmpty())
 			SparcRegister.addToRegHash(mNodes.values());
 		
@@ -263,8 +280,6 @@ public class RegGraph {
 		activeMoves = new ArrayList<MovSparcBlockPair>();
 		
 		alias = new Hashtable<Node, Node>();
-		
-		// populate list of initial nodes
 	}
 	
 	public void buildGraph(ArrayList<Block> allBlocks)
@@ -346,14 +361,17 @@ public class RegGraph {
 	{
 		for (Node n : initial)
 		{
+			// High-degree nodes go in spillList.
 			if (n.mEdges.size() >= colors.size())
 			{
 				spillList.add(n);
 			}
+			// Low-degree, move-related nodes go into freezeList.
 			else if (n.moveRelated)
 			{
 				freezeList.add(n);
 			}
+			// Low-degree, non-move-related nodes go in simplifyList.
 			else
 			{
 				simplifyList.add(n);
@@ -366,23 +384,23 @@ public class RegGraph {
 	
 	public void simplify()
 	{
+		// Remove a node from simplifyList and push it onto the stack.
 		Node n = simplifyList.get(0);
-		//System.out.println("Simplifying node " + n.mReg);
 		simplifyList.remove(n);
 		selectStack.push(n);
-		//TreeSet<Node> edgesClone = (TreeSet<Node>) n.mEdges.clone();
-		for (Node m : n.mEdges/*edgesClone*/)
+		
+		// Decrement the degree of each neighboring node.
+		for (Node m : n.mEdges)
 		{
 			decrementDegree(m, n);
 		}
+		
 		return;
 	}
 	
 	private void decrementDegree(Node m, Node n)
 	{
-		//System.out.println("decrementDegree: " + m + ", " + n);
 		int d = m.mEdges.size();
-		//System.out.println("Degree of " + m + " is " + d);
 		m.mEdges.remove(n);
 		if (d == colors.size())
 		{
@@ -410,13 +428,10 @@ public class RegGraph {
 	
 	private void enableMoves(Node n)
 	{
-		//System.out.println("enableMoves(" + n + ")");
 		for (MovSparcBlockPair m : nodeMoves(n))
 		{
-			//System.out.println("Found in move list:" + m);
 			if (activeMoves.contains(m))
 			{
-				//System.out.println(m + " is in activeMoves");
 				activeMoves.remove(m);
 				worklistMoves.add(m);
 			}
@@ -446,7 +461,6 @@ public class RegGraph {
 		for (MovSparcBlockPair instr : moveList.get(n))
 		{
 			boolean inActiveMoves = activeMoves.contains(instr);
-			//boolean inWorklistMoves = worklistMoves.contains(instr);
 			boolean inWorklistMoves = worklistMoves.contains(instr);
 			if (inActiveMoves || inWorklistMoves)
 				ret.add(instr);
@@ -458,7 +472,6 @@ public class RegGraph {
 	private void freeze()
 	{
 		Node u = freezeList.get(0);
-		//System.out.println("Freezing " + u.mReg);
 		freezeList.remove(u);
 		simplifyList.add(u);
 		freezeMoves(u);
@@ -478,7 +491,6 @@ public class RegGraph {
 			Node x = getNode(m.instr.getSources().get(0));
 			Node y = getNode(m.instr.getDests().get(0));
 			Node v = getAlias(y).equals(u) ? getAlias(x) : getAlias(y);
-			//Node v = y.equals(u) ? x : y;
 			
 			if (nodeMoves(v).isEmpty() && v.mEdges.size() < colors.size())
 			{
@@ -491,7 +503,6 @@ public class RegGraph {
 	private void coalesce()
 	{
 		MovSparcBlockPair m = worklistMoves.get(0);
-		//System.out.println("Coalescing " + m);
 		Node x = getNode(m.instr.getSources().get(0));
 		Node y = getNode(m.instr.getDests().get(0));
 		
@@ -512,15 +523,12 @@ public class RegGraph {
 		worklistMoves.remove(m);
 		if (u.equals(v))
 		{
-			//System.out.println("Src and dst equivalent.");
 			coalescedMoves.add(m);
-			coalescedMoveNames.add(m.instr.toString());
 			moveList.get(u).remove(m.instr);
 			addWorkList(u);
 		}
 		else if (v.mReal != null || u.mEdges.contains(v)) // the mov's src and dest interfere
 		{
-			//System.out.println("Move is constrained.");
 			constrainedMoves.add(m);
 			moveList.get(u).remove(m);
 			moveList.get(v).remove(m);
@@ -529,19 +537,13 @@ public class RegGraph {
 		}
 		else if (/*(u.mReal != null && precoloredCoalesceOK(u, v)) ||*/ (u.mReal == null && okToCoalesce(u, v)))
 		{
-			if ((u.mReal != null && precoloredCoalesceOK(u, v)))
-				System.out.print("");
-			
-			//System.out.println("OK to coalesce.");
 			coalescedMoves.add(m);
-			coalescedMoveNames.add(m.instr.toString());
 			combine(u, v);
 			moveList.get(u).remove(m.instr);
 			addWorkList(u);
 		}
 		else
 		{
-			//System.out.println("Adding to active moves.");
 			activeMoves.add(m);
 		}
 	}
@@ -593,7 +595,6 @@ public class RegGraph {
 
 	private void combine(Node u, Node v)
 	{
-		//System.out.println("Combining " + u.mReg + ", " + v.mReg);
 		if (freezeList.contains(v))
 			freezeList.remove(v);
 		else
@@ -602,9 +603,6 @@ public class RegGraph {
 		coalesced.add(v);
 		alias.put(v, u);
 		
-		// pseudocode says nodeMoves[u] := nodeMoves[u] union nodeMoves[v]... idk what this is doing.
-		// I feel like if they meant moveList they would've said moveList, but there isn't a nodeMoves data
-		// structure mentioned in the pseudocode anywhere...
 		for (MovSparcBlockPair instr : nodeMoves(v))
 		{
 			if (!moveList.get(u).contains(instr))
@@ -629,7 +627,6 @@ public class RegGraph {
 		if (!moveList.containsKey(n))
 			moveList.put(n, new ArrayList<MovSparcBlockPair>());
 		
-		//System.out.println("Adding " + reg.toString() + " -> " + instr.toString() + " to move list");
 		moveList.get(n).add(new MovSparcBlockPair(instr, b));
 	}
 	
@@ -641,21 +638,6 @@ public class RegGraph {
 		freezeMoves(n);
 	}
 	
-	private void rewriteProgram(ArrayList<Block> allBlocks)
-	{
-		ArrayList<Node> newTemps = new ArrayList<Node>();
-		
-		// code for handling spills goes here.
-		// (add all newly created temporary regs to newTemps)
-		
-		spilled.clear();
-		initial.addAll(colored);
-		initial.addAll(coalesced);
-		initial.addAll(newTemps);
-		colored.clear();
-		coalesced.clear();
-	}
-
 	public void addInstrToMoveList(MovSparc instr, Block block)
 	{
 		Node nSrc = getNode(instr.getSources().get(0));

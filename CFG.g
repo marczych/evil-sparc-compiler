@@ -217,6 +217,9 @@ generate : ^(PROGRAM
 
    if (Block.deadCount > 0)
       System.out.println(Block.deadCount + " dead instructions removed!");
+	  
+	if (RegGraph.coalescedCount > 0)
+		System.out.println(RegGraph.coalescedCount + " mov instructions coalesced.");
 
    strBuild.append("\t.section\t\".text\"\n");
 
