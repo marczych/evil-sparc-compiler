@@ -54,6 +54,11 @@ public class Block {
 
       mRoster.add(this);
    }
+   
+	public ArrayList<SparcInstruction> getSparcList()
+	{
+		return mSparcList;
+	}
 
    public void setLargestNumArgs(int num) {
       mLargestNumArgs = num;
@@ -76,6 +81,12 @@ public class Block {
       for (IlocInstruction instr : mInstructionList) {
          mSparcList.addAll(instr.toSparc());
       }
+	  
+	  /*for (SparcInstruction instr : mSparcList)
+	  {
+		if (instr.isMove())
+			System.out.println("Block.makeSparc(): I found a move instruction!");
+	  }*/
 
       makeGenKill();
 
@@ -313,8 +324,17 @@ public class Block {
 
             // add edge from dest to all elements in Live
             for (SparcRegister live : prev)
+			{
                graph.addEdge(dest, live);
+			}
          }
+		 
+		 // If it's a move instruction, store a reference to the instruction in the
+		 // nodes corresponding to its source and destination registers.
+		if (instr.isMove())
+		{
+			graph.addInstrToMoveList((MovSparc) instr, this);
+		}
 
          // Any register this instruction uses is live for any previous instructions.
          for (SparcRegister src : instr.getSources()) {
@@ -400,6 +420,11 @@ public class Block {
          return;
       mInstructionList.add(instr);
    }
+   
+	public void removeInstruction(SparcInstruction instr)
+	{
+		mSparcList.remove(instr);
+	}
 
    public void appendInstruction(ArrayList<IlocInstruction> instr) {
       if (mReturn)

@@ -8,6 +8,11 @@ public class MovSparc extends SparcInstruction {
       mSrc = src;
       mDest = dest;
    }
+   
+   public boolean isMove()
+   {
+	return true;
+   }
 
    public ArrayList<SparcRegister> getSources() {
       ArrayList<SparcRegister> list = new ArrayList<SparcRegister>();

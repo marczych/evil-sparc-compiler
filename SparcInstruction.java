@@ -17,6 +17,11 @@ public abstract class SparcInstruction {
    public boolean canRemoveDead() {
       return true;
    }
+   
+   public boolean isMove()
+   {
+	return false;
+   }
 
    public ArrayList<SparcInstruction> getInstrs() {
       ArrayList<SparcInstruction> list = new ArrayList<SparcInstruction>();

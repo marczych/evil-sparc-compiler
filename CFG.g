@@ -173,10 +173,14 @@ generate : ^(PROGRAM
          }
 
          regGraph = new RegGraph();
+		 
+		 //regGraph.buildGraph(allBlocks);
+		 regGraph.initializeIRC();
+		 
          // This makes the interference graph that is used in graph coloring.
-         for (Block blk : allBlocks) {
-            blk.makeInstrLiveOut(regGraph);
-         }
+        for (Block blk : allBlocks) {
+           blk.makeInstrLiveOut(regGraph);
+        }
 
          // Perform dead code removal and start over if we have removed
          // any dead instructions because live range analysis will change.
@@ -185,8 +189,11 @@ generate : ^(PROGRAM
             for (Block blk : allBlocks)
                deadDone &= !blk.checkDead();
 
+		//if (deadDone)
+		//	regGraph.iteratedRegisterCoalescing(allBlocks);
+			   
          // If graph coloring was successful then continue on to the next function.
-         if (deadDone && regGraph.colorGraph()) {
+         if (deadDone /*&& regGraph.colorGraph()*/ && regGraph.iteratedRegisterCoalescing(allBlocks)) {
             fun.setSpillCount(SparcRegister.spillCount);
             break;
          }
