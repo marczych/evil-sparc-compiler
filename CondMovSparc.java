@@ -2,11 +2,11 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 
 public class CondMovSparc extends SparcInstruction {
+   protected Compare mType;
    protected SparcRegister mDest;
    protected int mSrc;
-   protected String mType;
 
-   public CondMovSparc(String type, SparcRegister dest, int src) {
+   public CondMovSparc(Compare type, SparcRegister dest, int src) {
       mSrc = src;
       mDest = dest;
       mType = type;
@@ -28,8 +28,27 @@ public class CondMovSparc extends SparcInstruction {
       return list;
    }
 
+   public String getConditionName() {
+      switch (mType) {
+      case EQ:
+         return "e";
+      case LT:
+         return "l";
+      case GT:
+         return "g";
+      case NE:
+         return "ne";
+      case LE:
+         return "le";
+      case GE:
+         return "ge";
+      default:
+         return "cond";
+      }
+   }
+
    public String toString() {
-      return "mov"+(mType.equals("eq") ? "e" : mType) +" %icc, "+mSrc+", "+mDest;
+      return "mov" + getConditionName() + " %icc, " + mSrc + ", " + mDest;
    }
 
    public void replaceSpills(Hashtable<SparcRegister, SparcRegister> spills) {

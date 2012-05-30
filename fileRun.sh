@@ -39,10 +39,10 @@ if [ $? == 0 ]; then
    time ./benchmarks/$1/my.$1 < ./benchmarks/$1/input > ./benchmarks/$1/my.out
    diff ./benchmarks/$1/my.out ./benchmarks/$1/output > ./benchmarks/$1/my.diff
    if [ $? == 0 ]; then
-      echo "Success!! - $1";
+      echo -e "[32mSuccess!![m - $1";
       exit 0
    else
-      echo "Fail!! =( - $1";
+      echo -e "[31mFail!! =([m - $1";
       exit 1
    fi
 else

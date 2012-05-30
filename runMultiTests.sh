@@ -13,6 +13,7 @@ function jobidfromstring()
 }
 
 ulimit -s unlimited
+make
 
 joblist=""
 
@@ -21,7 +22,7 @@ BENCHMARKS=`ls benchmarks`
 for benchmark in $BENCHMARKS
 do
    let "count += 1"
-   ./fileRun.sh $benchmark &
+   ./fileRun.sh $benchmark asdf &
    lastjob=`jobidfromstring $(jobs %%)`
    joblist="$joblist $lastjob"
 done

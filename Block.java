@@ -7,6 +7,7 @@ public class Block {
    protected final static long BASE_INSTR_LIMIT = 15;
    public static boolean FUNCTION_INLINING = true;
    public static boolean DEAD_CODE = true;
+   public static boolean TAIL_CALL = true;
    public static int deadCount = 0;
    protected static long mCount = 0;
    protected static Block curExit;
@@ -16,7 +17,6 @@ public class Block {
    protected ArrayList<IlocInstruction> mInstructionList;
    protected ArrayList<IlocInstruction> mInlineList;
    protected ArrayList<SparcInstruction> mSparcList;
-   protected ArrayList<Block> mPredecessors;
    protected TreeSet<SparcRegister> mGenSet, mKillSet, mLiveOut;
    protected Block mThen;
    protected Block mElse;
@@ -26,10 +26,14 @@ public class Block {
    protected int mLargestNumArgs;
    protected int mNumArgs;
    protected int mSpillCount;
+   protected int mNumPredecessors;
    protected Register mCondReg;
+   protected Compare mCondType;
+   protected boolean mRemoveDeadPredecessor = false;
+   protected boolean mBackwardsCondition = false;
    protected boolean mReturn = false;
-   protected boolean mIsInExit = false;
    protected boolean mEntry = false;
+   protected boolean mExit = false;
    protected boolean mInline = false;
    protected boolean mCallsSelf = false;
    protected boolean mLoop = false;
@@ -47,7 +51,7 @@ public class Block {
       mInstructionList = new ArrayList<IlocInstruction>();
       mInlineList = new ArrayList<IlocInstruction>();
       mSparcList = new ArrayList<SparcInstruction>();
-      mPredecessors = new ArrayList<Block>();
+      mNumPredecessors = 0;
       mLiveOut = new TreeSet<SparcRegister>();
 
       mNumber = mCount++;
@@ -118,6 +122,8 @@ public class Block {
 
       ret = new Block(getLabel() + "inline");
       ret.mCondReg = mCondReg;
+      ret.mBackwardsCondition = mBackwardsCondition;
+      ret.mCondType = mCondType;
       blocks.put(this, ret);
 
       for (IlocInstruction instr : mInstructionList) {
@@ -139,9 +145,9 @@ public class Block {
       }
 
       if (mThen != null)
-         ret.addThen(mThen.inlineClone(blocks));
+         ret.setThen(mThen.inlineClone(blocks));
       if (mElse != null)
-         ret.addElse(mElse.inlineClone(blocks));
+         ret.setElse(mElse.inlineClone(blocks));
 
       return ret;
    }
@@ -158,6 +164,8 @@ public class Block {
       blocks.put(this, ret);
 
       ret.mCondReg = mCondReg;
+      ret.mCondType = mCondType;
+      ret.mBackwardsCondition = mBackwardsCondition;
       IlocInstruction copy;
 
       for (IlocInstruction instr : mInstructionList) {
@@ -170,9 +178,9 @@ public class Block {
          ret.mCondReg = regs.get(ret.mCondReg);
 
       if (mThen != null)
-         ret.addThen(mThen.inlineMakeClone(blocks, regs));
+         ret.setThen(mThen.inlineMakeClone(blocks, regs));
       if (mElse != null)
-         ret.addElse(mElse.inlineMakeClone(blocks, regs));
+         ret.setElse(mElse.inlineMakeClone(blocks, regs));
 
       if (mThen == null && mElse == null)
          curExit = ret;
@@ -411,6 +419,10 @@ public class Block {
       mEntry = true;
    }
 
+   public void setExit() {
+      mExit = true;
+   }
+
    public void setInline() {
       mInline = true;
    }
@@ -432,33 +444,57 @@ public class Block {
       mInstructionList.addAll(instr);
    }
 
-   public void appendCondition(Register res) {
+   public void appendBackwardsCondition(Register res, Compare condType) {
+      appendCondition(res, condType);
+      mBackwardsCondition = true;
+   }
+
+   public void appendCondition(Register res, Compare condType) {
       if (mReturn)
          return;
 
       mCondReg = res;
+      mCondType = condType;
    }
 
-   public void addThen(Block thenBlock) {
+   public void setThen(Block thenBlock) {
       if (mReturn)
          return;
+
+      if (mThen != null) {
+         mThen.removePredecessor();
+      }
+
       mThen = thenBlock;
-      mThen.appendPredecessor(this);
+      if (mThen != null) {
+         mThen.addPredecessor();
+      }
    }
 
    public Block getThen() {
       return mThen;
    }
 
-   public void addElse(Block elseBlock) {
+   public void setElse(Block elseBlock) {
       if (mReturn)
          return;
+
+      if (mElse != null) {
+         mElse.removePredecessor();
+      }
+
       mElse = elseBlock;
-      mElse.appendPredecessor(this);
+      if (mElse != null) {
+         mElse.addPredecessor();
+      }
    }
 
-   public void appendPredecessor(Block pred) {
-      mPredecessors.add(pred);
+   public void addPredecessor() {
+      mNumPredecessors++;
+   }
+
+   public void removePredecessor() {
+      mNumPredecessors--;
    }
 
    public static void writeIloc(FileOutputStream os) {
@@ -496,9 +532,6 @@ public class Block {
    }
 
    public String getFullLabel() {
-      if (mIsInExit) {
-         return mThen.getFullLabel();
-      }
       if (mEntry)
          return mLabel.equals("main") ? mLabel : "fun" + mLabel;
 
@@ -511,12 +544,10 @@ public class Block {
       return mLabel;
    }
 
-   public String toSparc() {
+   //TODO Use StringBuilder
+   public void toSparc(StringBuilder strBuild) {
       if (mPrinted) {
-         return "";
-      }
-      if (mIsInExit) {
-         return mThen.toSparc();
+         return;
       }
 
       mPrinted = true;
@@ -528,32 +559,123 @@ public class Block {
       if(saveSize % 8 != 0)
          saveSize += 4;
 
-      String temp = getFullLabel() + ":";
+      strBuild.append(getFullLabel() + ":");
 
       if (mEntry) {
-         temp += "\n\t!#PROLOGUE# 0\n";
-         temp += "\tsave\t%sp, -"+saveSize+", %sp\n";
-         temp += "\t!#PROLOGUE# 1";
+         strBuild.append("\n\t!#PROLOGUE# 0\n");
+         strBuild.append("\tsave\t%sp, -"+saveSize+", %sp\n");
+         strBuild.append("\t!#PROLOGUE# 1");
+         strBuild.append("\n" + getFullLabel() + "BODY:");
       }
 
-      for (SparcInstruction instr : mSparcList)
-         temp = temp + "\n\t" + instr;
+      for (SparcInstruction instr : mSparcList) {
+         strBuild.append("\n\t");
+         strBuild.append(instr.toString());
+      }
 
-      if (mThen != null)
-         temp += "\n" + mThen.toSparc();
-      if (mElse != null)
-         temp += "\n" + mElse.toSparc();
+      if (mThen != null) {
+         strBuild.append("\n");
+         mThen.toSparc(strBuild);
+      }
+      if (mElse != null) {
+         strBuild.append("\n");
+         mElse.toSparc(strBuild);
+      }
 
-      return temp + "\n";
+      strBuild.append("\n");
+      return;
+   }
+
+   public Block getBlock() {
+      if (mInstructionList.size() != 0 || mElse != null || mThen == null) {
+         return this;
+      } else {
+         if (!mRemoveDeadPredecessor) {
+            mRemoveDeadPredecessor = true;
+            mThen.removePredecessor();
+         }
+
+         return mThen.getBlock();
+      }
+   }
+
+   // Finds tail calls that are not of the form "return call();"
+   public static void checkTailCalls() {
+      if (!Block.TAIL_CALL) {
+         return;
+      }
+
+      ArrayList<IlocInstruction> instrs;
+      IlocInstruction ilocInstr;
+
+      for (Block block : mRoster) {
+         instrs = block.mInstructionList;
+
+         // Tail call time.
+         if (instrs.size() > 0 && (ilocInstr = instrs.get(instrs.size() - 1))
+          instanceof CallInstr && (block.mThen == null || block.mThen.mExit)) {
+            System.out.println("Tail: " + ((CallInstr)ilocInstr).getFunName());
+            ((CallInstr)ilocInstr).setTail(true);
+            block.setThen(null);
+            block.setElse(null);
+
+            for (int i = instrs.size() - 2; i >= 0; i --) {
+               ilocInstr = instrs.get(i);
+
+               if (ilocInstr instanceof StoreoutInstr) {
+                  ((StoreoutInstr)ilocInstr).setTail(true);
+               } else {
+                  break;
+               }
+            }
+         }
+      }
+   }
+
+   public static void eliminateDeadBlocks() {
+      for (Block block : mRoster) {
+         if (block.mThen != null) {
+            Block then = block.mThen.getBlock();
+
+            if (then != block.mThen) {
+               block.setThen(then);
+            }
+         }
+         if (block.mElse != null) {
+            Block elseBlock = block.mElse.getBlock();
+
+            if (elseBlock != block.mElse) {
+               block.setElse(elseBlock);
+            }
+         }
+      }
    }
 
    public String toIloc() {
-      if (mThen != null && mElse != null) {
+      // We need to branch and we don't know what register the condition
+      // is in so we must branch based off the condition type
+      if (mCondReg == null && mElse != null) {
+         String label;
+         Compare cond;
+
+         // Looks wrong but we want to jump over the wrong block so we
+         // usually reverse the condition. However if we're branching
+         // backwards then we don't want to switch it.
+         if (mBackwardsCondition) {
+            label = mThen.getFullLabel();
+            cond = mCondType;
+         } else {
+            label = mElse.getFullLabel();
+            cond = mCondType.reverse();
+         }
+
+         mInstructionList.add(new BranchInstr(cond, label));
+      } else if (mThen != null && mElse != null) {
          mInstructionList.add(new CompiInstr(mCondReg, CFG.TRUE_VAL));
-         mInstructionList.add(new CBREQInstr(mThen.getFullLabel(),
-                  mElse.getFullLabel()));
-      }
-      else if (mElse == null && mThen != null && mThen.mPredecessors.size() > 1) {
+         mInstructionList.add(new BranchInstr(Compare.EQ,
+          mThen.getFullLabel()));
+         mInstructionList.add(new BranchInstr(null, mElse.getFullLabel()));
+      } else if (mThen != null && mThen.mNumPredecessors > 1) {
          mInstructionList.add(new JumpiInstr(mThen.getFullLabel()));
       }
 

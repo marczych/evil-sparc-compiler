@@ -1,0 +1,22 @@
+fun computeFib(int input, int acc) int {
+   if (input == 0) {
+      return acc;
+   } 
+   else { 
+      if (input <= 2) {
+         return 1 + acc;
+      } 
+      else {
+         return computeFib(input - 2, computeFib(input - 1, acc));
+      }
+   }
+}
+
+fun main() int {
+   int input;
+
+   read input;
+   print computeFib(input, 0) endl;
+   
+   return 0;
+}

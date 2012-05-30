@@ -65,8 +65,13 @@ public class Evil
    private static final String DISPLAYAST = "-displayAST";
    private static final String FUNCTIONINLINE = "-finline";
    private static final String NOFUNCTIONINLINE = "-nofinline";
+   private static final String TAILCALL = "-tailcall";
+   private static final String NOTAILCALL = "-notailcall";
    private static final String DEADCODE = "-deadcode";
    private static final String NODEADCODE = "-nodeadcode";
+   // Defaults all optimizations to false
+   private static final String NOOPT = "-noopt";
+   private static final String ALLOPT = "-allopt";
 
    private static String _inputFile = null;
    private static boolean _displayAST = false;
@@ -79,6 +84,18 @@ public class Evil
          {
             _displayAST = true;
          }
+         else if (args[i].equals(ALLOPT))
+         {
+            Block.FUNCTION_INLINING = true;
+            Block.TAIL_CALL = true;
+            Block.DEAD_CODE = true;
+         }
+         else if (args[i].equals(NOOPT))
+         {
+            Block.FUNCTION_INLINING = false;
+            Block.TAIL_CALL = false;
+            Block.DEAD_CODE = false;
+         }
          else if (args[i].equals(FUNCTIONINLINE))
          {
             Block.FUNCTION_INLINING = true;
@@ -86,6 +103,14 @@ public class Evil
          else if (args[i].equals(NOFUNCTIONINLINE))
          {
             Block.FUNCTION_INLINING = false;
+         }
+         else if (args[i].equals(TAILCALL))
+         {
+            Block.TAIL_CALL = true;
+         }
+         else if (args[i].equals(NOTAILCALL))
+         {
+            Block.TAIL_CALL = false;
          }
          else if (args[i].equals(DEADCODE))
          {

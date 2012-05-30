@@ -2,31 +2,43 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class MovanyInstr extends IlocInstruction {
+   private Compare mType;
    private int mVal;
    private Register mDest;
-   private String mType;
 
-   public MovanyInstr(String type, int val, Register dest) {
+   public MovanyInstr(Compare type, int val, Register dest) {
       mType = type;
       mVal = val;
       mDest = dest;
    }
 
    public String toIloc() {
-      return "mov"+mType+" "+mVal+", "+mDest.toIloc();
+      return "mov" + getConditionName() + " " + mVal + ", " + mDest.toIloc();
+   }
+
+   public String getConditionName() {
+      switch (mType) {
+      case EQ:
+         return "eq";
+      case LT:
+         return "lt";
+      case GT:
+         return "gt";
+      case NE:
+         return "ne";
+      case LE:
+         return "le";
+      case GE:
+         return "ge";
+      default:
+         return "cond";
+      }
    }
 
    public ArrayList<SparcInstruction> toSparc() {
       ArrayList<SparcInstruction> list = new ArrayList<SparcInstruction>();
 
-      String type = mType;
-
-      if(mType.equals("gt"))
-         type = "g";
-      else if(mType.equals("lt"))
-         type = "l";
-
-      list.add(new CondMovSparc(type, mDest.toSparc(), mVal));
+      list.add(new CondMovSparc(mType, mDest.toSparc(), mVal));
 
       return list;
    }
