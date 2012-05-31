@@ -6,6 +6,8 @@ import java.util.Enumeration;
 import java.util.ArrayList;
 
 public class RegGraph {
+   public static boolean IRC = true;
+
    static {
       colors = addColors();
       restricted = new Hashtable<SparcRegister, TreeSet<SparcRegister>>();
@@ -731,7 +733,15 @@ public class RegGraph {
          nod.mEdges.add(node);
    }
 
-   public boolean colorGraph() {
+   public boolean colorGraph(ArrayList<Block> allBlocks) {
+      if (RegGraph.IRC) {
+         return iteratedRegisterCoalescing(allBlocks);
+      } else {
+         return oldColorGraph();
+      }
+   }
+
+   private boolean oldColorGraph() {
       Collection<Node> tempNodes = mNodes.values();
       TreeSet<Node> nodes = new TreeSet<Node>();
 

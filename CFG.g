@@ -201,7 +201,7 @@ generate : ^(PROGRAM
 		//	regGraph.iteratedRegisterCoalescing(allBlocks);
 			   
          // If graph coloring was successful then continue on to the next function.
-         if (deadDone /*&& regGraph.colorGraph()*/ && regGraph.iteratedRegisterCoalescing(allBlocks)) {
+         if (deadDone /*&& regGraph.colorGraph()*/ && regGraph.colorGraph(allBlocks)) {
             fun.setSpillCount(SparcRegister.spillCount);
             break;
          }

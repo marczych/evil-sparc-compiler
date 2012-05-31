@@ -65,6 +65,8 @@ public class Evil
    private static final String DISPLAYAST = "-displayAST";
    private static final String FUNCTIONINLINE = "-finline";
    private static final String NOFUNCTIONINLINE = "-nofinline";
+   private static final String IRC = "-irc";
+   private static final String NOIRC = "-noirc";
    private static final String TAILCALL = "-tailcall";
    private static final String NOTAILCALL = "-notailcall";
    private static final String DEADCODE = "-deadcode";
@@ -89,12 +91,14 @@ public class Evil
             Block.FUNCTION_INLINING = true;
             Block.TAIL_CALL = true;
             Block.DEAD_CODE = true;
+            RegGraph.IRC = true;
          }
          else if (args[i].equals(NOOPT))
          {
             Block.FUNCTION_INLINING = false;
             Block.TAIL_CALL = false;
             Block.DEAD_CODE = false;
+            RegGraph.IRC = false;
          }
          else if (args[i].equals(FUNCTIONINLINE))
          {
@@ -103,6 +107,14 @@ public class Evil
          else if (args[i].equals(NOFUNCTIONINLINE))
          {
             Block.FUNCTION_INLINING = false;
+         }
+         else if (args[i].equals(IRC))
+         {
+            RegGraph.IRC = true;
+         }
+         else if (args[i].equals(NOIRC))
+         {
+            RegGraph.IRC = false;
          }
          else if (args[i].equals(TAILCALL))
          {
