@@ -6,14 +6,14 @@ make
 FILE="myTimes.txt"
 
 echo "" >> $FILE
-echo "Benchmark, -noopt, -finline, -deadcode, -tailcall, -allopt" >> $FILE
+echo "Benchmark, -noopt, -finline, -deadcode, -tailcall, -irc, -allopt" >> $FILE
 
 BENCHMARKS=`ls benchmarks`
 for benchmark in $BENCHMARKS
 do
    BENCHMARK_STATS="$benchmark"
 
-   for opt in "-noopt" "-finline" "-deadcode" "-tailcall" "-allopt"
+   for opt in "-noopt" "-finline" "-deadcode" "-tailcall" "-irc" "-allopt"
    do
       echo "$opt $benchmark"
 # later flags will override the nopt flag
