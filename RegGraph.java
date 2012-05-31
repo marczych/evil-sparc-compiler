@@ -535,7 +535,7 @@ public class RegGraph {
 			addWorkList(u);
 			addWorkList(v);
 		}
-		else if (/*(u.mReal != null && precoloredCoalesceOK(u, v)) ||*/ (u.mReal == null && okToCoalesce(u, v)))
+		else if ((u.mReal != null && precoloredCoalesceOK(u, v) && u.mReal.compareTo(SparcRegister.getGlobal(0)) != 0) || (u.mReal == null && okToCoalesce(u, v)))
 		{
 			coalescedMoves.add(m);
 			combine(u, v);
