@@ -13,7 +13,7 @@ By Christopher Hoover and Marc Zych \vspace{10pt} \\
 CSC 520: Grad Computer Architecture \vspace{10pt} \\
 Dr. Chris Lupo \vspace{10pt} \\
 }
-\date{June 4, 2012}
+\date{June 5, 2012}
 
 \maketitle
 
@@ -128,7 +128,7 @@ A leaf function is a subroutine that does not call any other subroutines.
 Functions with this property can be modified to prevent the allocation of a new stack frame and the shift of the register window.
 Since the leaf function does not have its own exclusive set of new registers, only the OUT and GLOBAL registers can be used if the caller's registers are to be preserved.
 Many SPARC resources claim that this is a very important optimization to perform.
-``The elimination of register saving and restoring makes calling a leaf routine very efficient'' \cite{sparcArchitecture}.
+``The elimination of register saving and restoring makes calling a leaf routine very efficient.'' \cite{sparcArchitecture}
 The SPARC architecture even provides a {\tt retl} instruction that is the leaf function equivalent to the {\tt ret} instruction.
 
 However, the performance gains we observed were very limited.
