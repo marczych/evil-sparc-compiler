@@ -1,5 +1,4 @@
 \documentclass[12pt]{article}
-
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{setspace}
@@ -121,7 +120,8 @@ Tail calls seem to be comparatively rare.
 We realized that even most recursive functions are not written in a tail-recursive manner.
 Instead, they typically add a value to the return value of the function before returning to the previous caller.
 The program can usually be rewritten to pass in the current result to the next recursive function call to take advantage of tail call elimination.
-This could even be done by the compiler itself, however, our compiler does not perform this transformation.
+This could even be done by the compiler itself.
+However, our compiler does not perform this transformation.
 
 \subsection{Leaf Functions}
 A leaf function is a subroutine that does not call any other subroutines.
@@ -148,7 +148,7 @@ Since we determined this before the optimization was fully implemented, we decid
 This section explains an optimization that specifically targets branch conditions.
 It was available to perform only because branches were implemented very poorly in the existing compiler.
 When creating the intermediate representation, the {\tt if} and {\tt while} constructs use the same expression rule as other statements in the language.
-In particular, expression is used store a boolean value into a register during variable assignment.
+In particular, the expression rule is used store a boolean value into a register during variable assignment.
 The same expression rule is used during branching by comparing the result with {\tt true} and conditionally branching based on that.
 
 \begin{figure}
@@ -167,7 +167,7 @@ The same expression rule is used during branching by comparing the result with {
 \end{figure}
 
 The overhead associated with this approach is immense.
-Shown in the left side of Figure~\ref{fig:branchOverhead}, there are two compares, a move to set the value to false, a conditional move to set the value to {\tt true}, two branch, and two {\tt nop} instructions for a single {\tt if} or {\tt while} construct.
+Shown in the left side of Figure~\ref{fig:branchOverhead}, there are two compares, a move to set the value to false, a conditional move to set the value to {\tt true}, two branches, and two {\tt nop} instructions for a single {\tt if} or {\tt while} construct.
 As shown in the right side of Figure~\ref{fig:branchOverhead}, a conditional branch can be used immediately after the compare instruction for a total of three instructions including the {\tt nop.}
 Notice that the conditional branch now has the opposite condition as the conditional move.
 The code now jumps over the block that shouldn’t be executed or falls through and continues executing the ``true'' branch.
@@ -184,27 +184,29 @@ For further details on the algorithm, refer to \emph{Iterated Register Coalescin
 
 At its core, Iterated Register Coalescing is a graph-coloring-based register allocation algorithm.
 However, it also incorporates a technique known as “coalescing,” which attempts to detect and remove unnecessary move instructions from generated assembly code.
-If a move instruction's source and destination pseudoregisters do not interfere – that is, their associated nodes in the interference graph are not connected by an edge – the two pseudoregisters can be coalesced into a new node, which possesses the union of its parent nodes' edges.
+If a move instruction's source and destination pseudoregisters do not interfere - that is, their associated nodes in the interference graph are not connected by an edge - the two pseudoregisters can be coalesced into a new node, which possesses the union of its parent nodes' edges.
 This operation maps the source and destination pseudoregisters to the same physical register, allowing the compiler to delete the move instruction.
 
 Although any move instruction with non-interference source and destination pseudoregisters can be coalesced, this is not always beneficial.
-Since the new node's degree is the sum of its parent nodes' degrees, it is more constrained than its parents.
+Since the new node possesses the union of its parent nodes' edges, it is more constrained than its parents.
 Even if the new node's parents were colorable, the coalesced node may not be colorable if its degree is greater than the number of available colors (K).
 Thus, Appel and George use “conservative coalescing,” which requires that the source and destination nodes have a combined total of fewer than K significant-degree neighbors (defined as adjacent nodes with degree at least K).
 This requirement ensures that coalescing will never transform a colorable graph into an uncolorable graph.
 
 The algorithm consists of several main phases, which are briefly described below:
 
-Compute live ranges and build an interference graph, while simultaneously creating a list of all move instructions in the function or program.
-Any nodes used in these instructions are considered move-related in the steps that follow.
-Simplify the graph by pushing nodes with degree less than K onto a stack.
-These nodes are not processed again until the color selection phase.
-Coalesce operands of move instructions that satisfy the conservative heuristic.
-When there are no more low-degree nodes to simplify and no more moves eligible for coalescing, select a low-degree move-related node and “freeze” all moves that use that node.
-Frozen moves are no longer considered for coalescing, and nodes chosen in this step are no longer considered move-related.
-When these operations are completed, simplification and coalescing are resumed.
-After all possible simplification, coalescing, and freezing have been completed, pop nodes from the stack one by one and attempt to “color” them (that is, assign them to physical registers).
-If a node has no available colors during this step, it is spilled.
+\begin{enumerate}
+\item Compute live ranges and build an interference graph, while simultaneously creating a list of all move instructions in the function or program.
+      Any nodes used in these instructions are considered move-related in the steps that follow.
+\item Simplify the graph by pushing nodes with degree less than K onto a stack.
+      These nodes are not processed again until the color selection phase.
+\item Coalesce operands of move instructions that satisfy the conservative heuristic.
+\item When there are no more low-degree nodes to simplify and no more moves eligible for coalescing, select a low-degree move-related node and “freeze” all moves that use that node.
+      Frozen moves are no longer considered for coalescing, and nodes chosen in this step are no longer considered move-related.
+      When these operations are completed, simplification and coalescing are resumed.
+\item After all possible simplification, coalescing, and freezing have been completed, pop nodes from the stack one by one and attempt to “color” them (that is, assign them to physical registers).
+      If a node has no available colors during this step, it is spilled.
+\end{enumerate}
 
 \subsubsection{Implementation Discussion}
 Our implementation of Iterated Register Coalescing was based on the pseudocode given in \emph{Iterated Register Coalescing} \cite{iteratedRegisterCoalescing}.
@@ -217,7 +219,8 @@ We did not discover the cause of this failure, but we were able to modify the EV
 In addition, our implementation of Appel and George's {\tt main()} function is not recursive, and does not handle live range analysis or spill code insertion itself.
 We instead decided to implement our top-level Iterated Register Coalescing function so that it returns a Boolean value after it attempts to color the interference graph.
 A return value of {\tt true} indicates no spills were necessary, whereas {\tt false} indicates at least one register was spilled and that spill code must be inserted.
-The EVIL compiler's standard graph-coloring function also behaves in this manner, with spill code insertion, live range analysis, and interference graph building being handled separately as part of the loop shown in Figure~\ref{fig:ircLoop}
+The EVIL compiler's standard graph-coloring function also behaves in this manner, with spill code insertion, live range analysis, and interference graph building being handled separately as part of the loop shown in Figure~\ref{fig:ircLoop}.
+By altering our Iterated Register Coalescing implementation to behave according to the EVIL compiler's previous graph-coloring implementation, we were able to reuse existing logic with only minimal modifications.
 
 \begin{figure}
 \begin{verbatim}
@@ -235,8 +238,6 @@ The EVIL compiler's standard graph-coloring function also behaves in this manner
 \caption{Register allocation loop}
 \label{fig:ircLoop}
 \end{figure}
-
-By altering our Iterated Register Coalescing implementation to behave according to the EVIL compiler's previous graph-coloring implementation, we were able to reuse existing logic with only minimal modifications.
 
 \section{Results}
 This section describes our experimental assessment of the optimizations described above.
@@ -305,6 +306,8 @@ We also gained a new appreciation for the complexity and difficulty of compiler 
 Although the runtime improvements we achieved are noticeable, they are still only small fractions of the benchmarks' total runtimes in almost every case.
 Additionally, the optimizations we performed are certainly not cutting-edge and are implemented in every modern compiler.
 Through this project, we saw firsthand that compiler optimization is an extremely challenging field, one that demands great effort to achieve comparatively minor results.
+
+The code for this project is open source and can be found on GitHub at http://www.github.com/marczych/evil-sparc-compiler.
 
 \newpage
 \bibliographystyle{IEEEannot}
