@@ -221,14 +221,14 @@ The EVIL compiler's standard graph-coloring function also behaves in this manner
 
 \begin{figure}
 \begin{verbatim}
-            For each function
-            Do live range analysis
-            Build interference graph
-            Do dead code removal
-            Attempt register allocation
-            If (no dead code removed and no spills needed)
+      For each function
+         Do live range analysis
+         Build interference graph
+         Do dead code removal
+         Attempt register allocation
+         If (no dead code removed and no spills needed)
             Continue to next function
-            Else
+         Else
             Insert spill code, re-generate function's instructions
             Re-process current function
 \end{verbatim}
